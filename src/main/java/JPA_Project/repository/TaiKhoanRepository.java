@@ -50,4 +50,9 @@ public class TaiKhoanRepository extends BaseRepository<TaiKhoan, String> {
             em.close();
         }
     }
+
+    public static void main(String[] args) {
+        //test nhanh
+
+    }
 }

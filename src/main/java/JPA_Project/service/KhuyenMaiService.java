@@ -1,6 +1,7 @@
 package JPA_Project.service;
 
 import JPA_Project.entity.KhuyenMai;
+import JPA_Project.entity.LoaiVe;
 import JPA_Project.repository.KhuyenMaiRepository;
 
 import java.math.BigDecimal;
@@ -66,6 +67,16 @@ public class KhuyenMaiService {
             KhuyenMai km = optKM.get();
             km.setTrangThai(trangThai);
             save(km);
+        }
+    }
+
+    public static void main(String[] args) {
+        //test nhanh có lấy được dữ liệu không
+        KhuyenMaiService service = new KhuyenMaiService();
+        List<KhuyenMai> allKM = service.getAllKhuyenMai();
+        System.out.println("Danh sách khuyến mãi:");
+        for (KhuyenMai lv : allKM) {
+            System.out.println( lv.getMaKM() + ": " + lv.getTenKM() + " (" + lv.getLoaiKM() + ") - " + lv.getGiaTriGiam() + " - " + lv.getTrangThai());
         }
     }
 }

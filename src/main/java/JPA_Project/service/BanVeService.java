@@ -690,11 +690,6 @@ public class BanVeService {
                 for (TicketDTO ticket : listVe) {
                     String maToa = ticket.maChoDat().split("-")[0]; // Lấy mã toa từ mã chỗ
                     if (!loaiToaMap.containsKey(maToa)) {
-                        LoaiToa loaiToa = em.createQuery(
-                                "SELECT lt FROM LoaiToa lt WHERE lt.maLoaiCho = lt.maLoaiCho", LoaiToa.class)
-                                .setMaxResults(1)
-                                .getResultList().stream().findFirst().orElse(null);
-                        
                         // Tìm loại toa từ toa
                         List<Toa> toaList = em.createQuery(
                                 "SELECT t FROM Toa t JOIN FETCH t.loaiToaRef WHERE t.maToa = :maToa", Toa.class)
@@ -798,6 +793,9 @@ public class BanVeService {
                     cthd.setMaVe(ve.getMaVe());
                     cthd.setDonGia(ve.getGiaVe());
                     cthd.setSoLuong(1);
+                    // Set relationships for @MapsId
+                    cthd.setHoaDon(hoaDon);
+                    cthd.setVe(ve);
                     em.persist(cthd);
                 }
 

@@ -37,4 +37,10 @@ public class TuyenRepository extends BaseRepository<Tuyen, String> {
             em.close();
         }
     }
+
+    public static void main(String[] args) {
+        //test nhanh
+        //lấy toàn bộ tuyến + ga trong tuyến trong csdl
+
+    }
 }

@@ -9,6 +9,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.CompoundBorder;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.math.BigDecimal;
@@ -129,7 +130,6 @@ public class ManHinhBanVeJPA extends JPanel implements ActionListener {
     private Color getColorByLoaiToa(String loaiToa) {
         if (loaiToa == null) return COLOR_GHE_TRONG;
         if (loaiToa.contains("NGAM_6")) return COLOR_TOA_NGAM_6;
-        if (loaiToa.contains("NGAM")) return COLOR_TOA_NGAM_4;
         return COLOR_TOA_NGOI;
     }
 
@@ -139,7 +139,6 @@ public class ManHinhBanVeJPA extends JPanel implements ActionListener {
     private String getTenLoaiToa(String loaiToa) {
         if (loaiToa == null) return "Ghế ngồi";
         if (loaiToa.contains("NGAM_6")) return "Giường nằm khoang 6";
-        if (loaiToa.contains("NGAM")) return "Giường nằm khoang 4";
         return "Ghế ngồi";
     }
 
@@ -173,12 +172,10 @@ public class ManHinhBanVeJPA extends JPanel implements ActionListener {
 
         add(splitMain, BorderLayout.CENTER);
 
-        // Footer với nút Hủy và Tiếp theo
-        JPanel footer = taoFooter();
-        add(footer, BorderLayout.SOUTH);
+
 
         // Đặt vị trí divider
-        SwingUtilities.invokeLater(() -> splitMain.setDividerLocation(0.6));
+        SwingUtilities.invokeLater(() -> splitMain.setDividerLocation(0.5));
     }
 
     /**
@@ -213,73 +210,94 @@ public class ManHinhBanVeJPA extends JPanel implements ActionListener {
     private JPanel taoPanelPhai() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Color.GRAY),
-                "Thông tin hành khách"));
+        panel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.GRAY, 1),
+                new EmptyBorder(0, 0, 0, 0)));
+        panel.setPreferredSize(new Dimension(450, 0));
 
         // Panel chứa danh sách khách hàng
         pnlDanhSachKhachHang = new JPanel();
         pnlDanhSachKhachHang.setLayout(new BoxLayout(pnlDanhSachKhachHang, BoxLayout.Y_AXIS));
-        pnlDanhSachKhachHang.setBackground(Color.WHITE);
-
-        scrDanhSachKhachHang = new JScrollPane(pnlDanhSachKhachHang);
-        scrDanhSachKhachHang.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrDanhSachKhachHang.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        pnlDanhSachKhachHang.setOpaque(false);
+        pnlDanhSachKhachHang.setBorder(new EmptyBorder(5, 5, 5, 5));
 
         JLabel placeholder = new JLabel("Chọn ghế để nhập thông tin hành khách");
         placeholder.setAlignmentX(Component.CENTER_ALIGNMENT);
         placeholder.setForeground(Color.GRAY);
         pnlDanhSachKhachHang.add(placeholder);
 
+        scrDanhSachKhachHang = new JScrollPane(pnlDanhSachKhachHang);
+        scrDanhSachKhachHang.setBorder(null);
+        scrDanhSachKhachHang.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrDanhSachKhachHang.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
         panel.add(scrDanhSachKhachHang, BorderLayout.CENTER);
 
-        // Panel tổng tiền
-        JPanel pnlTongTien = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        pnlTongTien.setBackground(Color.WHITE);
+        // Panel footer chứa tổng kết và nút
+        JPanel footerPanel = new JPanel();
+        footerPanel.setLayout(new BoxLayout(footerPanel, BoxLayout.Y_AXIS));
+        footerPanel.setOpaque(false);
 
+        // Panel tổng kết
+        JPanel summaryPanel = new JPanel(new BorderLayout());
+        summaryPanel.setBackground(Color.WHITE);
+        summaryPanel.setBorder(new EmptyBorder(8, 10, 8, 10));
+
+        JPanel infoPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 0));
+        infoPanel.setOpaque(false);
         lblSoGheDaChon = new JLabel("Đã chọn: 0 ghế");
-        lblSoGheDaChon.setFont(new Font("Arial", Font.BOLD, 14));
+        lblSoGheDaChon.setFont(new Font("Arial", Font.PLAIN, 12));
+        infoPanel.add(lblSoGheDaChon);
 
-        lblTongTien = new JLabel("Tổng tiền: 0 VND");
-        lblTongTien.setFont(new Font("Arial", Font.BOLD, 16));
+        JPanel pricePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
+        pricePanel.setOpaque(false);
+        lblTongTien = new JLabel("Tổng tiền vé: 0 VNĐ");
+        lblTongTien.setFont(new Font("Arial", Font.BOLD, 14));
         lblTongTien.setForeground(COLOR_ORANGE);
+        pricePanel.add(lblTongTien);
 
-        pnlTongTien.add(lblSoGheDaChon);
-        pnlTongTien.add(Box.createHorizontalStrut(20));
-        pnlTongTien.add(lblTongTien);
+        summaryPanel.add(infoPanel, BorderLayout.WEST);
+        summaryPanel.add(pricePanel, BorderLayout.EAST);
 
-        panel.add(pnlTongTien, BorderLayout.SOUTH);
+        // Panel nút bấm
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        buttonPanel.setOpaque(false);
 
-        return panel;
-    }
-
-    /**
-     * Tạo panel footer với nút Hủy và Tiếp theo.
-     */
-    private JPanel taoFooter() {
-        JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        panel.setBorder(new EmptyBorder(10, 0, 0, 0));
-
-        btnHuy = new JButton("Hủy");
-        btnHuy.setPreferredSize(new Dimension(100, 40));
+        btnHuy = new JButton("< Hủy");
+        btnHuy.setPreferredSize(new Dimension(90, 40));
+        btnHuy.setFont(btnHuy.getFont().deriveFont(Font.BOLD, 14f));
         btnHuy.setBackground(new Color(220, 53, 69));
         btnHuy.setForeground(Color.WHITE);
         btnHuy.setFocusPainted(false);
+        btnHuy.setOpaque(true);
+        btnHuy.setBorderPainted(false);
+        btnHuy.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnHuy.addActionListener(this);
 
         btnTiepTheo = new JButton("Tiếp theo >");
         btnTiepTheo.setPreferredSize(new Dimension(120, 40));
+        btnTiepTheo.setFont(btnTiepTheo.getFont().deriveFont(Font.BOLD, 14f));
         btnTiepTheo.setBackground(new Color(0, 123, 255));
         btnTiepTheo.setForeground(Color.WHITE);
         btnTiepTheo.setFocusPainted(false);
+        btnTiepTheo.setOpaque(true);
+        btnTiepTheo.setBorderPainted(false);
+        btnTiepTheo.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnTiepTheo.addActionListener(this);
         btnTiepTheo.setEnabled(false);
 
-        panel.add(btnHuy);
-        panel.add(btnTiepTheo);
+        buttonPanel.add(btnHuy);
+        buttonPanel.add(btnTiepTheo);
+
+        // Thêm vào footer
+        footerPanel.add(summaryPanel);
+        footerPanel.add(buttonPanel);
+
+        panel.add(footerPanel, BorderLayout.SOUTH);
 
         return panel;
     }
+
 
     /**
      * Tạo panel tìm kiếm.
@@ -287,52 +305,57 @@ public class ManHinhBanVeJPA extends JPanel implements ActionListener {
     private JPanel taoPanelTimKiem() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createTitledBorder(
+        panel.setBackground(new Color(248, 249, 250));
+        
+        TitledBorder title = BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(Color.GRAY),
-                "Tìm kiếm chuyến tàu"));
+                "Tìm kiếm chuyến tàu");
+        title.setTitleFont(title.getTitleFont().deriveFont(Font.BOLD, 13f));
+        panel.setBorder(title);
 
-        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 8));
-        row.setBackground(Color.WHITE);
+        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        row.setBackground(new Color(248, 249, 250));
 
         // Ga đi
         JLabel lblGaDi = new JLabel("Ga đi:");
-        lblGaDi.setFont(new Font("Arial", Font.PLAIN, 13));
+        lblGaDi.setFont(new Font("Arial", Font.BOLD, 12));
         row.add(lblGaDi);
 
         cbGaDi = new JComboBox<>();
-        cbGaDi.setPreferredSize(new Dimension(150, 30));
-        cbGaDi.setFont(new Font("Arial", Font.PLAIN, 13));
+
+        cbGaDi.setBackground(Color.WHITE);
         row.add(cbGaDi);
 
         // Ga đến
         JLabel lblGaDen = new JLabel("Ga đến:");
-        lblGaDen.setFont(new Font("Arial", Font.PLAIN, 13));
+        lblGaDen.setFont(new Font("Arial", Font.BOLD, 12));
         row.add(lblGaDen);
 
         cbGaDen = new JComboBox<>();
-        cbGaDen.setPreferredSize(new Dimension(150, 30));
-        cbGaDen.setFont(new Font("Arial", Font.PLAIN, 13));
+
+        cbGaDen.setBackground(Color.WHITE);
         row.add(cbGaDen);
 
         // Ngày đi
         JLabel lblNgayDi = new JLabel("Ngày đi:");
-        lblNgayDi.setFont(new Font("Arial", Font.PLAIN, 13));
+        lblNgayDi.setFont(new Font("Arial", Font.BOLD, 12));
         row.add(lblNgayDi);
 
         spnNgayDi = new JSpinner(new SpinnerDateModel());
         JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(spnNgayDi, "dd/MM/yyyy");
         spnNgayDi.setEditor(dateEditor);
-        spnNgayDi.setPreferredSize(new Dimension(110, 30));
+        spnNgayDi.setFont(new Font("Arial", Font.PLAIN, 12));
         row.add(spnNgayDi);
 
         // Nút tìm kiếm
         btnTimChuyen = new JButton("Tìm chuyến");
-        btnTimChuyen.setPreferredSize(new Dimension(110, 35));
         btnTimChuyen.setBackground(COLOR_BLUE_LIGHT);
         btnTimChuyen.setForeground(Color.WHITE);
-        btnTimChuyen.setFont(new Font("Arial", Font.BOLD, 13));
+        btnTimChuyen.setFont(new Font("Arial", Font.BOLD, 12));
         btnTimChuyen.setFocusPainted(false);
+        btnTimChuyen.setOpaque(true);
+        btnTimChuyen.setBorderPainted(false);
+        btnTimChuyen.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnTimChuyen.addActionListener(this);
         row.add(btnTimChuyen);
 
@@ -959,7 +982,7 @@ public class ManHinhBanVeJPA extends JPanel implements ActionListener {
             }
         }
 
-        btn.setBorderPainted(true);
+        btn.setBorderPainted(false);
         btn.setOpaque(true);
         btn.setToolTipText(ghe.maChoDat() + " - " + (ghe.daDat() ? "Đã đặt" : "Trống"));
         btn.addActionListener(e -> xuLyClickGhe(ghe));
@@ -1076,6 +1099,7 @@ public class ManHinhBanVeJPA extends JPanel implements ActionListener {
         btnXoa.setBackground(COLOR_ORANGE);
         btnXoa.setForeground(Color.WHITE);
         btnXoa.setBorderPainted(false);
+        btnXoa.setOpaque(true);
         btnXoa.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnXoa.addActionListener(e -> {
             huyChonGhe(maCho);
@@ -1260,7 +1284,7 @@ public class ManHinhBanVeJPA extends JPanel implements ActionListener {
         }
 
         lblSoGheDaChon.setText("Đã chọn: " + soGhe + " ghế");
-        lblTongTien.setText("Tổng tiền: " + formatCurrency(tongTien));
+        lblTongTien.setText("Tổng tiền vé: " + formatCurrency(tongTien));
 
         btnTiepTheo.setEnabled(soGhe > 0);
     }

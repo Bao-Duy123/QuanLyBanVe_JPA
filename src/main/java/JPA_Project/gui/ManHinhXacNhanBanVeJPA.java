@@ -289,12 +289,18 @@ public class ManHinhXacNhanBanVeJPA extends JPanel {
         btnHuy.setBackground(COLOR_DO_NUT);
         btnHuy.setForeground(Color.WHITE);
         btnHuy.setFocusPainted(false);
+
+        btnHuy.setOpaque(true);
+        btnHuy.setBorderPainted(false);
+
         btnHuy.addActionListener(e -> huyBo());
 
         btnQuayLai = new JButton("< Quay lại");
         btnQuayLai.setPreferredSize(new Dimension(120, 40));
         btnQuayLai.setBackground(Color.GRAY);
         btnQuayLai.setForeground(Color.WHITE);
+        btnQuayLai.setOpaque(true);
+        btnQuayLai.setBorderPainted(false);
         btnQuayLai.setFocusPainted(false);
         btnQuayLai.addActionListener(e -> quayLai());
 
@@ -302,6 +308,10 @@ public class ManHinhXacNhanBanVeJPA extends JPanel {
         btnXacNhan.setPreferredSize(new Dimension(180, 40));
         btnXacNhan.setBackground(COLOR_XANH_BTN);
         btnXacNhan.setForeground(Color.WHITE);
+
+        btnXacNhan.setOpaque(true);
+        btnXacNhan.setBorderPainted(false);
+
         btnXacNhan.setFocusPainted(false);
         btnXacNhan.addActionListener(e -> xacNhanThanhToan());
 
@@ -309,6 +319,10 @@ public class ManHinhXacNhanBanVeJPA extends JPanel {
         btnKetThuc.setPreferredSize(new Dimension(120, 40));
         btnKetThuc.setBackground(COLOR_CAM_BTN);
         btnKetThuc.setForeground(Color.WHITE);
+
+        btnKetThuc.setOpaque(true);
+        btnKetThuc.setBorderPainted(false);
+
         btnKetThuc.setFocusPainted(false);
         btnKetThuc.setEnabled(false);
         btnKetThuc.addActionListener(e -> ketThuc());

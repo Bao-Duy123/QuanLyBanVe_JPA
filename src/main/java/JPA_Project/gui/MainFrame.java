@@ -193,7 +193,7 @@ public class MainFrame extends JFrame implements ActionListener {
         panelNoiDung = new JPanel(cardLayout);
 
         panelNoiDung.add(new TrangChuPanel(), "trangChu");
-        panelNoiDung.add(new BanVePanel(nhanVien), "banVe");
+        panelNoiDung.add(new BanVePanelJPA(nhanVien), "banVe");
         panelNoiDung.add(new TraCuuPanel(), "traCuuVe");
         panelNoiDung.add(new TraCuuPanel(), "traCuuHD");
         panelNoiDung.add(new ThongKePanel(), "thongKe");

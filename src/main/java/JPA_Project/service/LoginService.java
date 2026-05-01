@@ -1,10 +1,12 @@
 package JPA_Project.service;
 
+import JPA_Project.entity.KhuyenMai;
 import JPA_Project.entity.NhanVien;
 import JPA_Project.entity.TaiKhoan;
 import JPA_Project.repository.NhanVienRepository;
 import JPA_Project.repository.TaiKhoanRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public class LoginService {
@@ -51,5 +53,20 @@ public class LoginService {
         tk.setMatKhau(matKhauMoi);
         taiKhoanRepository.save(tk);
         return true;
+    }
+    //lấy thông tin tất cả tài khoản
+    public Optional<TaiKhoan> getTaiKhoanByTenDangNhap(String tenDangNhap) {
+        return taiKhoanRepository.findByTenDangNhap(tenDangNhap);
+    }
+
+    public static void main(String[] args) {
+        //test nhanh lấy toàn bộ tài khoản trong csdl
+        LoginService service = new LoginService();
+        List<TaiKhoan> allKM = service.taiKhoanRepository.findAll();
+        System.out.println("Danh sách khuyến mãi:");
+        for (TaiKhoan lv : allKM) {
+            System.out.println(lv.getTenDangNhap() + " - " + lv.getMatKhau());
+        }
+
     }
 }

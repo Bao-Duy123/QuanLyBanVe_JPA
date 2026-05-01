@@ -215,11 +215,86 @@ public class ManHinhBanVe extends JPanel implements MouseListener, ActionListene
 
         JPanel khuVucThongTinKhach = createKhuVucThongTinKhach();
         panelPhai.add(khuVucThongTinKhach, BorderLayout.CENTER);
-
-
-
         return panelPhai;
     }
+    private JPanel createKhuVucThongTinKhach() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBackground(Color.WHITE);
+        panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY),
+                "Thông tin khách hàng"));
+
+        // --- FIX: Thiết lập kích thước ưu tiên cho panel cha ---
+        // Chiều rộng cố định khoảng 400-500px là đủ cho thông tin khách
+        panel.setPreferredSize(new Dimension(450, 0));
+        // Chiều cao để 0 hoặc bất kỳ vì BorderLayout.CENTER của cha sẽ lo chiều cao
+
+        // --- KHỞI TẠO PANEL CHỨA DANH SÁCH KHÁCH HÀNG ---
+        pnlDanhSachKhachHang = new JPanel();
+        pnlDanhSachKhachHang.setLayout(new BoxLayout(pnlDanhSachKhachHang, BoxLayout.Y_AXIS));
+        pnlDanhSachKhachHang.setOpaque(false);
+        pnlDanhSachKhachHang.setBorder(new EmptyBorder(5, 5, 5, 5));
+
+        pnlDanhSachKhachHang.add(new JLabel("Chọn ghế để thêm thông tin."));
+
+        thongTinKhachScrollPane = new JScrollPane(pnlDanhSachKhachHang);
+        thongTinKhachScrollPane.setBorder(null);
+        thongTinKhachScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+        // Tắt thanh cuộn ngang để tránh giao diện xấu, nội dung sẽ tự wrap hoặc bị cắt nếu quá dài
+        thongTinKhachScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        // --- THAY ĐỔI: Add ScrollPane vào CENTER ---
+        panel.add(thongTinKhachScrollPane, BorderLayout.CENTER);
+
+        SwingUtilities.invokeLater(this::capNhatThongTinKhachUI);
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        buttonPanel.setOpaque(false);
+
+        btnHuy = new JButton("< Hủy");
+        btnHuy.setPreferredSize(new Dimension(80, 40));
+        btnHuy.setFont(btnHuy.getFont().deriveFont(Font.BOLD, 14f));
+        btnHuy.setBackground(new Color(220, 53, 69));
+        btnHuy.setForeground(Color.WHITE);
+
+        btnTiepTheo = new JButton("Tiếp theo >");
+        btnTiepTheo.setPreferredSize(new Dimension(120, 40));
+        btnTiepTheo.setFont(btnTiepTheo.getFont().deriveFont(Font.BOLD, 14f));
+        btnTiepTheo.setBackground(new Color(0, 123, 255));
+        btnTiepTheo.setForeground(Color.WHITE);
+
+        buttonPanel.add(btnHuy);
+        buttonPanel.add(btnTiepTheo);
+        //Đăng ký sự kiện
+        btnHuy.addActionListener(this);
+        btnTiepTheo.addActionListener(this);
+
+        JPanel fullSummary = new JPanel(new BorderLayout());
+        fullSummary.setBackground(Color.white);
+        fullSummary.setBorder(new EmptyBorder(5, 10, 5, 10));
+
+        JPanel summaryPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
+        summaryPanel.setOpaque(false);
+        summaryPanel.add(new JLabel("Đã chọn: X/Y")); // Label này cần được cập nhật thực tế
+
+        lblTotalPrice = new JLabel("Tổng tiền vé: 0 VNĐ");
+        lblTotalPrice.setFont(lblTotalPrice.getFont().deriveFont(Font.BOLD, 14f));
+        lblTotalPrice.setForeground(new Color(255, 165, 0));
+        summaryPanel.add(lblTotalPrice);
+
+        fullSummary.add(summaryPanel, BorderLayout.EAST);
+
+        JPanel footerPanel = new JPanel();
+        footerPanel.setLayout(new BoxLayout(footerPanel, BoxLayout.Y_AXIS));
+        footerPanel.setOpaque(false);
+
+        footerPanel.add(fullSummary);
+        footerPanel.add(buttonPanel);
+
+        panel.add(footerPanel, BorderLayout.SOUTH);
+
+        return panel;
+    }
+
 
     // ====================================================================================
     // MODULE: 4. UI BUILDERS (TẠO CÁC KHU VỰC GIAO DIỆN CON)
@@ -413,83 +488,6 @@ public class ManHinhBanVe extends JPanel implements MouseListener, ActionListene
         return panel;
     }
 
-    private JPanel createKhuVucThongTinKhach() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY),
-                "Thông tin khách hàng"));
-
-        // --- FIX: Thiết lập kích thước ưu tiên cho panel cha ---
-        // Chiều rộng cố định khoảng 400-500px là đủ cho thông tin khách
-        panel.setPreferredSize(new Dimension(450, 0));
-        // Chiều cao để 0 hoặc bất kỳ vì BorderLayout.CENTER của cha sẽ lo chiều cao
-
-        // --- KHỞI TẠO PANEL CHỨA DANH SÁCH KHÁCH HÀNG ---
-        pnlDanhSachKhachHang = new JPanel();
-        pnlDanhSachKhachHang.setLayout(new BoxLayout(pnlDanhSachKhachHang, BoxLayout.Y_AXIS));
-        pnlDanhSachKhachHang.setOpaque(false);
-        pnlDanhSachKhachHang.setBorder(new EmptyBorder(5, 5, 5, 5));
-
-        pnlDanhSachKhachHang.add(new JLabel("Chọn ghế để thêm thông tin."));
-
-        thongTinKhachScrollPane = new JScrollPane(pnlDanhSachKhachHang);
-        thongTinKhachScrollPane.setBorder(null);
-        thongTinKhachScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-
-        // Tắt thanh cuộn ngang để tránh giao diện xấu, nội dung sẽ tự wrap hoặc bị cắt nếu quá dài
-        thongTinKhachScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-
-        // --- THAY ĐỔI: Add ScrollPane vào CENTER ---
-        panel.add(thongTinKhachScrollPane, BorderLayout.CENTER);
-
-        SwingUtilities.invokeLater(this::capNhatThongTinKhachUI);
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        buttonPanel.setOpaque(false);
-
-        btnHuy = new JButton("< Hủy");
-        btnHuy.setPreferredSize(new Dimension(80, 40));
-        btnHuy.setFont(btnHuy.getFont().deriveFont(Font.BOLD, 14f));
-        btnHuy.setBackground(new Color(220, 53, 69));
-        btnHuy.setForeground(Color.WHITE);
-
-        btnTiepTheo = new JButton("Tiếp theo >");
-        btnTiepTheo.setPreferredSize(new Dimension(120, 40));
-        btnTiepTheo.setFont(btnTiepTheo.getFont().deriveFont(Font.BOLD, 14f));
-        btnTiepTheo.setBackground(new Color(0, 123, 255));
-        btnTiepTheo.setForeground(Color.WHITE);
-
-        buttonPanel.add(btnHuy);
-        buttonPanel.add(btnTiepTheo);
-        //Đăng ký sự kiện
-        btnHuy.addActionListener(this);
-        btnTiepTheo.addActionListener(this);
-
-        JPanel fullSummary = new JPanel(new BorderLayout());
-        fullSummary.setBackground(Color.white);
-        fullSummary.setBorder(new EmptyBorder(5, 10, 5, 10));
-
-        JPanel summaryPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
-        summaryPanel.setOpaque(false);
-        summaryPanel.add(new JLabel("Đã chọn: X/Y")); // Label này cần được cập nhật thực tế
-
-        lblTotalPrice = new JLabel("Tổng tiền vé: 0 VNĐ");
-        lblTotalPrice.setFont(lblTotalPrice.getFont().deriveFont(Font.BOLD, 14f));
-        lblTotalPrice.setForeground(new Color(255, 165, 0));
-        summaryPanel.add(lblTotalPrice);
-
-        fullSummary.add(summaryPanel, BorderLayout.EAST);
-
-        JPanel footerPanel = new JPanel();
-        footerPanel.setLayout(new BoxLayout(footerPanel, BoxLayout.Y_AXIS));
-        footerPanel.setOpaque(false);
-
-        footerPanel.add(fullSummary);
-        footerPanel.add(buttonPanel);
-
-        panel.add(footerPanel, BorderLayout.SOUTH);
-
-        return panel;
-    }
 
 
     // ====================================================================================
