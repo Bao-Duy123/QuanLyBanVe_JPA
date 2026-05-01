@@ -175,7 +175,7 @@ public class ManHinhBanVeJPA extends JPanel implements ActionListener {
 
 
         // Đặt vị trí divider
-        SwingUtilities.invokeLater(() -> splitMain.setDividerLocation(0.5));
+        SwingUtilities.invokeLater(() -> splitMain.setDividerLocation(0.55));
     }
 
     /**
@@ -1083,6 +1083,20 @@ public class ManHinhBanVeJPA extends JPanel implements ActionListener {
                 new EmptyBorder(10, 10, 10, 10)));
         khachPanel.setName(maCho);
 
+        //Set kích thước
+        // Thiết lập chiều cao cố định (ví dụ: 180 pixel)
+        int panelHeight = 150;
+// Chiều rộng để Integer.MAX_VALUE để nó vẫn dãn theo chiều ngang của container cha
+        Dimension size = new Dimension(Integer.MAX_VALUE, panelHeight);
+
+        khachPanel.setMaximumSize(size);
+        khachPanel.setPreferredSize(new Dimension(300, panelHeight)); // 300 là chiều rộng tối thiểu tạm thời
+        khachPanel.setMinimumSize(new Dimension(100, panelHeight));
+
+
+
+
+
         // Header
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(new Color(255, 228, 204));
@@ -1094,7 +1108,7 @@ public class ManHinhBanVeJPA extends JPanel implements ActionListener {
         header.add(lblMaGhe, BorderLayout.WEST);
 
         JButton btnXoa = new JButton("✕");
-        btnXoa.setPreferredSize(new Dimension(25, 25));
+//        btnXoa.setPreferredSize(new Dimension(25, 25));
         btnXoa.setFocusPainted(false);
         btnXoa.setBackground(COLOR_ORANGE);
         btnXoa.setForeground(Color.WHITE);

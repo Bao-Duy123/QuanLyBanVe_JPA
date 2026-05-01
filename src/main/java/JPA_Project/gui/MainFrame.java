@@ -25,7 +25,7 @@ public class MainFrame extends JFrame implements ActionListener {
     private JButton nutTrangChu, nutBanVe, nutTraCuuVe, nutTraCuuHD, nutDangXuat, nutTroGiup;
     private JButton nutQuanLy, nutThongKe;
 
-    private static final int CHIEU_RONG_MENU = 220;
+    private static final int CHIEU_RONG_MENU = 180;
     private static final int ICON_SIZE = 20;
 
     public MainFrame(NhanVien nhanVien, String chucVu) {

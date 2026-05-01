@@ -2,6 +2,6 @@
 <project version="4">
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/sql/1016 chỗ đặt cho tàu se1 se2 spt2.sql" dialect="GenericSQL" />
-    <file url="file://$PROJECT_DIR$/sql/QuanLyBanVeTau.sql" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/sql/QuanLyVeTau____HayDungCaiNayChoCSDL__mssql-pu_trongdb.sql" dialect="GenericSQL" />
   </component>
 </project>
