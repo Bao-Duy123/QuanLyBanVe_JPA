@@ -1,8 +1,7 @@
 package JPA_Project.repository;
 
 import JPA_Project.entity.LoaiToa;
-import JPA_Project.db.JPAUtil;
-import jakarta.persistence.EntityManager;
+import JPA_Project.db.Tx;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,12 +16,9 @@ public class LoaiToaRepository extends BaseRepository<LoaiToa, String> {
     }
 
     public List<LoaiToa> findAllOrderByTenLoaiToa() {
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            String jpql = "SELECT lt FROM LoaiToa lt ORDER BY lt.tenLoaiToa";
-            return em.createQuery(jpql, LoaiToa.class).getResultList();
-        } finally {
-            em.close();
-        }
+        return Tx.noTx(em -> em.createQuery(
+                        "SELECT lt FROM LoaiToa lt ORDER BY lt.tenLoaiToa",
+                        LoaiToa.class)
+                .getResultList());
     }
 }

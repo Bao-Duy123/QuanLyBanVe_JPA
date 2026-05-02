@@ -292,7 +292,16 @@ public class LoginFrame extends JFrame implements ActionListener {
                         System.out.println("[DEBUG-LoginFrame] Login failed - invalid credentials");
                         return LoginResult.dangNhapThatBai("Tên đăng nhập hoặc mật khẩu không đúng.");
                     }
-                    String chucVu = nhanVien.getChucVu() != null ? nhanVien.getChucVu() : "NHAN_VIEN";
+                    String chucVu = nhanVien.getChucVu() != null ? nhanVien.getChucVu() : "NHAN_VIEN_BAN_VE";
+                    
+                    // Determine role based on maNV prefix (NVBV = Ban Ve, NVQL/NVTP = Quan Ly)
+                    String maNV = nhanVien.getMaNV();
+                    if (maNV != null && (maNV.startsWith("NVQL") || maNV.startsWith("NVTP"))) {
+                        chucVu = "QUAN_LY";
+                    } else if (maNV != null && maNV.startsWith("NVBV")) {
+                        chucVu = "NHAN_VIEN_BAN_VE";
+                    }
+                    
                     System.out.println("[DEBUG-LoginFrame] Login success - MaNV: " + nhanVien.getMaNV() 
                         + ", HoTen: " + nhanVien.getHoTen() + ", ChucVu: " + chucVu);
                     return LoginResult.dangNhapThanhCong(nhanVien, chucVu);
