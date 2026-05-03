@@ -2,8 +2,8 @@ package JPA_Project.gui;
 
 import JPA_Project.dto.*;
 import JPA_Project.entity.*;
-import JPA_Project.service.BanVeService;
 import JPA_Project.network.RemoteRepository;
+import JPA_Project.service.BanVeService;
 import JPA_Project.repository.KhachHangRepository;
 
 import javax.swing.*;
@@ -16,7 +16,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.BiConsumer;
 
 /**
  * ManHinhBanVeJPA - Màn hình bán vé tàu với JPA.
