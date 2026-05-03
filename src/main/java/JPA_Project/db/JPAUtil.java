@@ -5,55 +5,49 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 
 /**
- * JPA Utility class - Sử dụng persistence-unit "sql_rut_gon" cho database QuanLyVeTau_JPA
+ * JPA Utility class - Sử dụng persistence-unit "mssql-pu" cho database QuanLyVeTau_JPA
  */
 public class JPAUtil {
     private static EntityManagerFactory emf;
     private static final String PERSISTENCE_UNIT_NAME = "mssql-pu";
-//    private static final String PERSISTENCE_UNIT_NAME = "sql_rut_gon";
+    private static boolean jpaAvailable = false;
 
     static {
         try {
             emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
+            jpaAvailable = true;
         } catch (Exception e) {
             System.err.println("Lỗi khởi tạo EntityManagerFactory: " + e.getMessage());
             e.printStackTrace();
+            jpaAvailable = false;
         }
     }
-
+    
+    /**
+     * Kiểm tra JPA có khả dụng không (có kết nối CSDL)
+     */
+    public static boolean isAvailable() {
+        return jpaAvailable && emf != null && emf.isOpen();
+    }
+    
+    public static EntityManagerFactory getEntityManagerFactory() {
+        return emf;
+    }
+    
     public static EntityManager getEntityManager() {
-        if (emf == null) {
-            throw new RuntimeException("EntityManagerFactory chưa được khởi tạo");
+        if (emf == null || !emf.isOpen()) {
+            throw new IllegalStateException("EntityManagerFactory is not available");
         }
         return emf.createEntityManager();
     }
-
-    public static void closeEntityManagerFactory() {
+    
+    public static void shutdown() {
         if (emf != null && emf.isOpen()) {
             emf.close();
         }
     }
-
-    public static EntityManagerFactory getEntityManagerFactory() {
-        if (emf == null) {
-            synchronized (JPAUtil.class) {
-                if (emf == null) {
-                    emf = Persistence.createEntityManagerFactory(PERSISTENCE_UNIT_NAME);
-                }
-            }
-        }
-        return emf;
-    }
-
+    
     public static EntityManager createEntityManager() {
-        return getEntityManagerFactory().createEntityManager();
-    }
-
-    public static void shutdown() {
-        EntityManagerFactory factory = emf;
-        emf = null;
-        if (factory != null && factory.isOpen()) {
-            factory.close();
-        }
+        return getEntityManager();
     }
 }

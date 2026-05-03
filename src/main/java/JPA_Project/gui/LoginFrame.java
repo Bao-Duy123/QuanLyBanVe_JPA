@@ -266,7 +266,15 @@ public class LoginFrame extends JFrame implements ActionListener {
         connectionDialog.setVisible(true);
         
         if (!connectionDialog.isConnected()) {
-            // User hủy - vẫn cho đăng nhập local
+            // User hủy - kiểm tra xem JPA có khả dụng không
+            if (!JPA_Project.db.JPAUtil.isAvailable()) {
+                JOptionPane.showMessageDialog(this, 
+                    "Bạn cần kết nối đến Server để sử dụng ứng dụng.\n" +
+                    "Máy này không có kết nối CSDL và chưa kết nối Server.",
+                    "Cần kết nối Server", 
+                    JOptionPane.WARNING_MESSAGE);
+                return;
+            }
             System.out.println("[DEBUG-LoginFrame] User huy ket noi server, dang nhap local");
         } else {
             System.out.println("[DEBUG-LoginFrame] Da ket noi server: " + 
