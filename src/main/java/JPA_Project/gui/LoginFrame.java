@@ -1,6 +1,5 @@
 package JPA_Project.gui;
 
-import JPA_Project.service.LoginService;
 import JPA_Project.entity.NhanVien;
 import JPA_Project.network.NetworkManager;
 import JPA_Project.network.TrainClient;
@@ -27,10 +26,8 @@ public class LoginFrame extends JFrame implements ActionListener {
     private JTextField txtTaiKhoan;
     private JPasswordField txtMatKhau;
     private SwingWorker<LoginResult, Void> dangNhapWorker;
-    private final LoginService loginService;
 
     public LoginFrame() {
-        this.loginService = new LoginService();
         initComponents();
     }
 
@@ -265,23 +262,14 @@ public class LoginFrame extends JFrame implements ActionListener {
         ServerConnectionDialog connectionDialog = new ServerConnectionDialog(null);
         connectionDialog.setVisible(true);
         
-        if (!connectionDialog.isConnected()) {
-            // User hủy - kiểm tra xem JPA có khả dụng không
-            if (!JPA_Project.db.JPAUtil.isAvailable()) {
-                JOptionPane.showMessageDialog(this, 
-                    "Bạn cần kết nối đến Server để sử dụng ứng dụng.\n" +
-                    "Máy này không có kết nối CSDL và chưa kết nối Server.",
-                    "Cần kết nối Server", 
-                    JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-            System.out.println("[DEBUG-LoginFrame] User huy ket noi server, dang nhap local");
-        } else {
+        if (connectionDialog.isConnected()) {
             System.out.println("[DEBUG-LoginFrame] Da ket noi server: " + 
                 JPA_Project.network.NetworkManager.getInstance().getConnectionInfo());
+        } else {
+            System.out.println("[DEBUG-LoginFrame] Chua ket noi server - se kiem tra JPA khi dang nhap");
         }
         
-        // Sau đó mới đăng nhập
+        // Sau đó mới đăng nhập (kiểm tra JPA trong xuLyDangNhapAsync)
         xuLyDangNhapAsync();
     }
 
@@ -339,36 +327,8 @@ public class LoginFrame extends JFrame implements ActionListener {
                         }
                     }
                     
-                    // Chưa kết nối Server - đăng nhập local
-                    System.out.println("[DEBUG-LoginFrame] Chua ket noi server, dang nhap local...");
-                    
-                    if ("admin".equals(tenDangNhap) && "admin".equals(matKhau)) {
-                        NhanVien nv = new NhanVien();
-                        nv.setMaNV("NV001");
-                        nv.setHoTen("Quản trị viên");
-                        nv.setChucVu("ADMIN");
-                        System.out.println("[DEBUG-LoginFrame] Admin login success");
-                        return LoginResult.dangNhapThanhCong(nv, "ADMIN");
-                    }
-
-                    NhanVien nhanVien = loginService.dangNhap(tenDangNhap, matKhau).orElse(null);
-                    if (nhanVien == null) {
-                        System.out.println("[DEBUG-LoginFrame] Login failed - invalid credentials");
-                        return LoginResult.dangNhapThatBai("Tên đăng nhập hoặc mật khẩu không đúng.");
-                    }
-                    String chucVu = nhanVien.getChucVu() != null ? nhanVien.getChucVu() : "NHAN_VIEN_BAN_VE";
-                    
-                    // Determine role based on maNV prefix (NVBV = Ban Ve, NVQL/NVTP = Quan Ly)
-                    String maNV = nhanVien.getMaNV();
-                    if (maNV != null && (maNV.startsWith("NVQL") || maNV.startsWith("NVTP"))) {
-                        chucVu = "QUAN_LY";
-                    } else if (maNV != null && maNV.startsWith("NVBV")) {
-                        chucVu = "NHAN_VIEN_BAN_VE";
-                    }
-                    
-                    System.out.println("[DEBUG-LoginFrame] Login success - MaNV: " + nhanVien.getMaNV() 
-                        + ", HoTen: " + nhanVien.getHoTen() + ", ChucVu: " + chucVu);
-                    return LoginResult.dangNhapThanhCong(nhanVien, chucVu);
+                    // Chưa kết nối Server - BẮT BUỘC phải kết nối
+                    return LoginResult.dangNhapThatBai("Bạn cần kết nối đến Server trước khi đăng nhập.\nVui lòng chọn 'Kết nối Server' trong dialog kết nối.");
                 } catch (Exception ex) {
                     System.err.println("[DEBUG-LoginFrame] Login exception: " + ex.getMessage());
                     ex.printStackTrace();

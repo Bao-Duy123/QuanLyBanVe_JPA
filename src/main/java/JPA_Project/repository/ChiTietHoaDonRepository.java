@@ -4,37 +4,28 @@ import JPA_Project.entity.ChiTietHoaDon;
 import JPA_Project.db.Tx;
 
 import java.util.List;
-import java.util.Optional;
 
-/**
- * ChiTietHoaDon Repository - Wrapper cho repository.ChiTietHoaDonRepository
- */
 public class ChiTietHoaDonRepository extends BaseRepository<ChiTietHoaDon, String> {
 
     public List<ChiTietHoaDon> findByMaHD(String maHD) {
         return Tx.noTx(em -> em.createQuery(
-                        "SELECT cthd FROM ChiTietHoaDon cthd WHERE cthd.hoaDon.maHD = :maHD",
+                        "select c from ChiTietHoaDon c " +
+                                "left join fetch c.ve " +
+                                "where c.maHD = :maHD",
                         ChiTietHoaDon.class)
                 .setParameter("maHD", maHD)
                 .getResultList());
     }
 
-    public Optional<ChiTietHoaDon> findByMaHDAndMaVe(String maHD, String maVe) {
+    public List<ChiTietHoaDon> findByMaVe(String maVe) {
         return Tx.noTx(em -> em.createQuery(
-                        "SELECT cthd FROM ChiTietHoaDon cthd WHERE cthd.hoaDon.maHD = :maHD AND cthd.ve.maVe = :maVe",
+                        "select c from ChiTietHoaDon c where c.maVe = :maVe",
                         ChiTietHoaDon.class)
-                .setParameter("maHD", maHD)
                 .setParameter("maVe", maVe)
-                .getResultStream()
-                .findFirst());
+                .getResultList());
     }
 
-    public double tinhTongTienByMaHD(String maHD) {
-        Double sum = Tx.noTx(em -> em.createQuery(
-                        "SELECT SUM(cthd.giaTien) FROM ChiTietHoaDon cthd WHERE cthd.hoaDon.maHD = :maHD",
-                        Double.class)
-                .setParameter("maHD", maHD)
-                .getSingleResult());
-        return sum != null ? sum : 0.0;
+    public void save(ChiTietHoaDon entity) {
+        Tx.inTxVoid(em -> em.persist(entity));
     }
 }

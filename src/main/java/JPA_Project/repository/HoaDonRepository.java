@@ -3,6 +3,7 @@ package JPA_Project.repository;
 import JPA_Project.entity.HoaDon;
 import JPA_Project.db.Tx;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +19,22 @@ public class HoaDonRepository extends BaseRepository<HoaDon, String> {
                         "select h from HoaDon h where h.maKhachHang = :maKhachHang order by h.ngayLap desc",
                         HoaDon.class)
                 .setParameter("maKhachHang", maKhachHang)
+                .getResultList());
+    }
+
+    public List<HoaDon> findByNgayLap(LocalDate ngay) {
+        return Tx.noTx(em -> em.createQuery(
+                        "select h from HoaDon h where CAST(h.ngayLap AS DATE) = :ngay order by h.ngayLap desc",
+                        HoaDon.class)
+                .setParameter("ngay", ngay)
+                .getResultList());
+    }
+
+    public List<HoaDon> findByMaNVLap(String maNV) {
+        return Tx.noTx(em -> em.createQuery(
+                        "select h from HoaDon h where h.maNVLap = :maNV order by h.ngayLap desc",
+                        HoaDon.class)
+                .setParameter("maNV", maNV)
                 .getResultList());
     }
 

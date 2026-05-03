@@ -3,61 +3,58 @@ package JPA_Project.repository;
 import JPA_Project.entity.KhachHang;
 import JPA_Project.db.Tx;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
 public class KhachHangRepository extends BaseRepository<KhachHang, String> {
 
-    public KhachHang findByCccd(String cccd) {
-        return Tx.noTx(em -> em.createQuery(
-                        "SELECT k FROM KhachHang k WHERE k.soCCCD = :cccd",
-                        KhachHang.class)
-                .setParameter("cccd", cccd)
-                .getResultStream()
-                .findFirst()
-                .orElse(null));
-    }
-
-    public List<KhachHang> findBySdt(String sdt) {
-        return Tx.noTx(em -> em.createQuery(
-                        "SELECT k FROM KhachHang k WHERE k.sdt = :sdt",
-                        KhachHang.class)
-                .setParameter("sdt", sdt)
-                .getResultList());
-    }
-
     public Optional<KhachHang> findByMaKH(String maKH) {
         return Optional.ofNullable(findById(maKH));
     }
 
-    public String taoMaKhachHangMoi() {
-        LocalDate homNay = LocalDate.now();
-        String ngayStr = homNay.format(DateTimeFormatter.ofPattern("ddMMyy"));
-
+    public KhachHang findByCccd(String cccd) {
         return Tx.noTx(em -> {
-            String jpql = "SELECT k.maKH FROM KhachHang k WHERE k.maKH LIKE :pattern ORDER BY k.maKH DESC";
-            List<String> results = em.createQuery(jpql, String.class)
-                    .setParameter("pattern", "KH" + ngayStr + "%")
-                    .setMaxResults(1)
+            List<KhachHang> results = em.createQuery(
+                            "select k from KhachHang k where k.soCCCD = :cccd",
+                            KhachHang.class)
+                    .setParameter("cccd", cccd)
                     .getResultList();
+            return results.isEmpty() ? null : results.get(0);
+        });
+    }
 
-            int nextNumber = 1;
-            if (!results.isEmpty()) {
-                String lastMaKH = results.get(0);
-                if (lastMaKH.length() >= 4) {
-                    try {
-                        String lastSTT = lastMaKH.substring(lastMaKH.length() - 4);
-                        nextNumber = Integer.parseInt(lastSTT) + 1;
-                    } catch (NumberFormatException e) {
-                        nextNumber = 1;
-                    }
-                }
+    public Optional<KhachHang> findBySoDienThoai(String sdt) {
+        return Tx.noTx(em -> em.createQuery(
+                        "select k from KhachHang k where k.sdt = :sdt",
+                        KhachHang.class)
+                .setParameter("sdt", sdt)
+                .getResultStream()
+                .findFirst());
+    }
+
+    public List<KhachHang> searchByHoTen(String hoTen) {
+        return Tx.noTx(em -> em.createQuery(
+                        "select k from KhachHang k where lower(k.hoTen) like :hoTen",
+                        KhachHang.class)
+                .setParameter("hoTen", "%" + hoTen.toLowerCase() + "%")
+                .getResultList());
+    }
+
+    public List<KhachHang> findAllOrderByHoTen() {
+        return Tx.noTx(em -> em.createQuery(
+                        "select k from KhachHang k order by k.hoTen",
+                        KhachHang.class)
+                .getResultList());
+    }
+
+    public void save(KhachHang entity) {
+        Tx.inTxVoid(em -> {
+            KhachHang existing = em.find(KhachHang.class, entity.getMaKH());
+            if (existing != null) {
+                em.merge(entity);
+            } else {
+                em.persist(entity);
             }
-
-            String soThuTuStr = String.format("%04d", nextNumber);
-            return "KH" + ngayStr + soThuTuStr;
         });
     }
 }

@@ -20,12 +20,36 @@ public class VeRepository extends BaseRepository<Ve, String> {
                 .getResultList());
     }
 
+    public List<Ve> findByMaChuyenTau(String maChuyenTau) {
+        return Tx.noTx(em -> em.createQuery(
+                        "select v from Ve v where v.maChuyenTau = :maChuyenTau",
+                        Ve.class)
+                .setParameter("maChuyenTau", maChuyenTau)
+                .getResultList());
+    }
+
     public List<Ve> findByMaChuyenTauVaMaCho(String maChuyenTau, String maChoDat) {
         return Tx.noTx(em -> em.createQuery(
                         "select v from Ve v where v.maChuyenTau = :maChuyenTau and v.maChoDat = :maChoDat",
                         Ve.class)
                 .setParameter("maChuyenTau", maChuyenTau)
                 .setParameter("maChoDat", maChoDat)
+                .getResultList());
+    }
+
+    public List<Ve> findByMaHD(String maHD) {
+        return Tx.noTx(em -> em.createQuery(
+                        "select v from Ve v where v.maHD = :maHD",
+                        Ve.class)
+                .setParameter("maHD", maHD)
+                .getResultList());
+    }
+
+    public List<Ve> findByMaKhachHang(String maKH) {
+        return Tx.noTx(em -> em.createQuery(
+                        "select v from Ve v where v.maKhachHang = :maKH",
+                        Ve.class)
+                .setParameter("maKH", maKH)
                 .getResultList());
     }
 
@@ -119,7 +143,7 @@ public class VeRepository extends BaseRepository<Ve, String> {
                     "left join fetch v.choDat " +
                     "where v.trangThai <> :trangThaiHuy and ((:maVe is not null and v.maVe = :maVe) or (:sdt is not null and kh.sdt = :sdt))";
             return em.createQuery(jpql, Ve.class)
-                    .setParameter("trangThaiHuy", "DA-HUY")
+                    .setParameter("trangThaiHuy", "DA_HUY")
                     .setParameter("maVe", (maVe == null || maVe.isBlank()) ? null : maVe)
                     .setParameter("sdt", (sdt == null || sdt.isBlank()) ? null : sdt)
                     .setMaxResults(1)
