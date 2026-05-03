@@ -54,8 +54,7 @@ public class DoiVeService {
      * Lấy thông tin hóa đơn theo mã.
      */
     public Optional<HoaDon> findHoaDonByMaHD(String maHD) {
-        HoaDon hd = hoaDonRepo.findByMaHD(maHD);
-        return Optional.ofNullable(hd);
+        return hoaDonRepo.findByMaHD(maHD);
     }
 
     /**

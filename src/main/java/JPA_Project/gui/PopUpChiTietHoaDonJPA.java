@@ -1,3 +1,5 @@
+
+// src/main/java/JPA_Project/gui/PopUpChiTietHoaDonJPA.java
 package JPA_Project.gui;
 
 import JPA_Project.entity.*;
@@ -7,6 +9,7 @@ import JPA_Project.repository.NhanVienRepository;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

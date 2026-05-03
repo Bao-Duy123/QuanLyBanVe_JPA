@@ -40,7 +40,8 @@ public class TraCuuService {
      * Tìm hóa đơn theo mã.
      */
     public Optional<HoaDon> timHoaDonTheoMa(String maHD) {
-        return Optional.ofNullable(hoaDonRepo.findByMaHD(maHD));
+        // hoaDonRepo.findByMaHD already returns Optional<HoaDon>
+        return hoaDonRepo.findByMaHD(maHD);
     }
 
     /**

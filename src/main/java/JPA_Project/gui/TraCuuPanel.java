@@ -33,7 +33,6 @@ public class TraCuuPanel extends JPanel {
     private JButton btnTimKiemHD;
     private JButton btnTaiLaiHD;
     private JTable tblHoaDon;
-    private JButton btnXemChiTiet;
 
     public TraCuuPanel() {
         this.veRepository = new VeRepository();
@@ -195,6 +194,7 @@ public class TraCuuPanel extends JPanel {
 
     private void timKiemVe() {
         String loaiTimKiem = (String) cbLoaiTimKiem.getSelectedItem();
+        final String loaiTimKiemKey = loaiTimKiem == null ? "" : loaiTimKiem; // final copy for use in inner class
         String giaTri = txtTimKiem.getText().trim();
 
         if (giaTri.isEmpty()) {
@@ -202,12 +202,12 @@ public class TraCuuPanel extends JPanel {
             return;
         }
 
-        SwingWorker<List<Ve>, Void> worker = new SwingWorker<>() {
+        SwingWorker<List<Ve>, Void> worker = new SwingWorker<List<Ve>, Void>() {
             @Override
             protected List<Ve> doInBackground() {
                 String hoTen = null, sdt = null, cccd = null, maVe = null;
 
-                switch (loaiTimKiem) {
+                switch (loaiTimKiemKey) {
                     case "Mã vé":
                         maVe = giaTri;
                         break;
@@ -219,6 +219,9 @@ public class TraCuuPanel extends JPanel {
                         break;
                     case "Họ tên":
                         hoTen = giaTri;
+                        break;
+                    default:
+                        // unknown selection - keep all nulls
                         break;
                 }
 
@@ -272,7 +275,7 @@ public class TraCuuPanel extends JPanel {
     }
 
     private void taiLaiDanhSachVe() {
-        SwingWorker<List<Ve>, Void> worker = new SwingWorker<>() {
+        SwingWorker<List<Ve>, Void> worker = new SwingWorker<List<Ve>, Void>() {
             @Override
             protected List<Ve> doInBackground() {
                 return veRepository.findByTrangThai("DA_BAN");
@@ -292,6 +295,7 @@ public class TraCuuPanel extends JPanel {
 
     private void timKiemHoaDon() {
         String loaiTimKiem = (String) cbLoaiTimKiemHD.getSelectedItem();
+        final String loaiTimKiemKey = loaiTimKiem == null ? "" : loaiTimKiem; // final copy for inner class
         String giaTri = txtTimKiemHD.getText().trim();
 
         if (giaTri.isEmpty()) {
@@ -299,10 +303,10 @@ public class TraCuuPanel extends JPanel {
             return;
         }
 
-        SwingWorker<List<HoaDon>, Void> worker = new SwingWorker<>() {
+        SwingWorker<List<HoaDon>, Void> worker = new SwingWorker<List<HoaDon>, Void>() {
             @Override
             protected List<HoaDon> doInBackground() {
-                switch (loaiTimKiem) {
+                switch (loaiTimKiemKey) {
                     case "CCCD":
                         return hoaDonRepository.findByCccdDetailed(giaTri);
                     case "Số điện thoại":
@@ -339,7 +343,10 @@ public class TraCuuPanel extends JPanel {
 
             String tenKM = "";
             if (hd.getKhuyenMai() != null) {
-                tenKM = hd.getKhuyenMai().getTenKM() != null ? hd.getKhuyenMai().getTenKM() : "";
+                String kmName = hd.getKhuyenMai().getTenKM();
+                if (kmName != null && !kmName.isEmpty()) {
+                    tenKM = kmName;
+                }
             }
 
             model.addRow(new Object[]{
@@ -357,7 +364,7 @@ public class TraCuuPanel extends JPanel {
     }
 
     private void taiLaiDanhSachHD() {
-        SwingWorker<List<HoaDon>, Void> worker = new SwingWorker<>() {
+        SwingWorker<List<HoaDon>, Void> worker = new SwingWorker<List<HoaDon>, Void>() {
             @Override
             protected List<HoaDon> doInBackground() {
                 return hoaDonRepository.findAllWithDetails();
@@ -376,7 +383,7 @@ public class TraCuuPanel extends JPanel {
     }
 
     private void hienThiChiTietHoaDon(String maHD) {
-        SwingWorker<HoaDon, Void> worker = new SwingWorker<>() {
+        SwingWorker<HoaDon, Void> worker = new SwingWorker<HoaDon, Void>() {
             @Override
             protected HoaDon doInBackground() {
                 return hoaDonRepository.findByMaHDWithDetails(maHD).orElse(null);
@@ -422,7 +429,12 @@ public class TraCuuPanel extends JPanel {
         addInfoRow(infoPanel, "Phương thức TT:", hd.getPhuongThuc() != null ? hd.getPhuongThuc() : "");
         String tenKM = "";
         if(hd.getKhuyenMai() != null) {
-            tenKM = hd.getKhuyenMai().getTenKM() != "" ? hd.getKhuyenMai().getTenKM() : "Không có";
+            String kmName = hd.getKhuyenMai().getTenKM();
+            if (kmName != null && !kmName.isEmpty()) {
+                tenKM = kmName;
+            } else {
+                tenKM = "Không có";
+            }
         }
         addInfoRow(infoPanel, "Khuyến mãi:", hd.getKhuyenMai() != null ?  tenKM : "Không có");
 
