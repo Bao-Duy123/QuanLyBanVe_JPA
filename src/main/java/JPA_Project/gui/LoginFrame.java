@@ -295,7 +295,7 @@ public class LoginFrame extends JFrame implements ActionListener {
         txtMatKhau.setEnabled(false);
         setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-        dangNhapWorker = new SwingWorker<>() {
+        dangNhapWorker = new SwingWorker<LoginResult, Void>() {
             @Override
             protected LoginResult doInBackground() {
                 try {
