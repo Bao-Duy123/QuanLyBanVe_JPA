@@ -437,7 +437,7 @@ public class ManHinhQuanLyNhanVienJPA extends JPanel {
         model.setRowCount(0);
         lblLoading.setText("Đang tải dữ liệu...");
 
-        SwingWorker<List<TaiKhoan>, Void> worker = new SwingWorker<>() {
+        SwingWorker<List<TaiKhoan>, Void> worker = new SwingWorker<List<TaiKhoan>, Void>() {
             @Override
             protected List<TaiKhoan> doInBackground() {
                 return nhanVienService.getAllTaiKhoanWithNhanVien();
@@ -478,7 +478,7 @@ public class ManHinhQuanLyNhanVienJPA extends JPanel {
      * Cập nhật các ô thống kê (Tổng số, Nhân viên, Quản lý) - sử dụng SwingWorker.
      */
     private void updateSummaryBoxes() {
-        SwingWorker<Map<String, Integer>, Void> worker = new SwingWorker<>() {
+        SwingWorker<Map<String, Integer>, Void> worker = new SwingWorker<Map<String, Integer>, Void>() {
             @Override
             protected Map<String, Integer> doInBackground() {
                 return nhanVienService.getStatistics();
@@ -551,7 +551,7 @@ public class ManHinhQuanLyNhanVienJPA extends JPanel {
      * Điền thông tin chi tiết của nhân viên lên form khi nhấp vào bảng.
      */
     private void fillFormFromTable(String maNV) {
-        SwingWorker<TaiKhoan, Void> worker = new SwingWorker<>() {
+        SwingWorker<TaiKhoan, Void> worker = new SwingWorker<TaiKhoan, Void>() {
             @Override
             protected TaiKhoan doInBackground() {
                 return nhanVienService.findTaiKhoanByMaNV(maNV).orElse(null);
@@ -604,7 +604,7 @@ public class ManHinhQuanLyNhanVienJPA extends JPanel {
      * Cập nhật trạng thái nhân viên thành 'Ngừng hoạt động'.
      */
     private void softDeleteEmployee(String maNV) {
-        SwingWorker<Boolean, Void> worker = new SwingWorker<>() {
+        SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
             @Override
             protected Boolean doInBackground() {
                 return nhanVienService.softDeleteNhanVien(maNV);
@@ -688,7 +688,7 @@ public class ManHinhQuanLyNhanVienJPA extends JPanel {
         // Gọi Service (sử dụng SwingWorker)
         lblLoading.setText("Đang xử lý...");
 
-        SwingWorker<Boolean, Void> worker = new SwingWorker<>() {
+        SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
             @Override
             protected Boolean doInBackground() {
                 try {
@@ -731,7 +731,7 @@ public class ManHinhQuanLyNhanVienJPA extends JPanel {
         if (maNV_dangSua == null) {
             String selectedRole = cbChucVu.getSelectedItem().toString();
 
-            SwingWorker<String, Void> worker = new SwingWorker<>() {
+            SwingWorker<String, Void> worker = new SwingWorker<String, Void>() {
                 @Override
                 protected String doInBackground() {
                     return nhanVienService.getNextMaNV(selectedRole);
@@ -765,7 +765,7 @@ public class ManHinhQuanLyNhanVienJPA extends JPanel {
         model.setRowCount(0);
         lblLoading.setText("Đang tìm kiếm...");
 
-        SwingWorker<List<TaiKhoan>, Void> worker = new SwingWorker<>() {
+        SwingWorker<List<TaiKhoan>, Void> worker = new SwingWorker<List<TaiKhoan>, Void>() {
             @Override
             protected List<TaiKhoan> doInBackground() {
                 return nhanVienService.searchNhanVien(searchBy, searchTerm, status);
