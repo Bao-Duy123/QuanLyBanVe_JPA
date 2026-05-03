@@ -3,9 +3,15 @@ package JPA_Project.network;
 import JPA_Project.entity.Ve;
 import JPA_Project.entity.HoaDon;
 import JPA_Project.entity.ChoDat;
+import JPA_Project.entity.Ga;
+import JPA_Project.entity.ChuyenTau;
+import JPA_Project.entity.Toa;
 import JPA_Project.repository.VeRepository;
 import JPA_Project.repository.HoaDonRepository;
 import JPA_Project.repository.ChoDatRepository;
+import JPA_Project.repository.GaRepository;
+import JPA_Project.repository.ChuyenTauRepository;
+import JPA_Project.repository.ToaRepository;
 import JPA_Project.service.BanVeService;
 
 import java.io.*;
@@ -41,6 +47,9 @@ public class TrainServer {
     private final VeRepository veRepository;
     private final HoaDonRepository hoaDonRepository;
     private final ChoDatRepository choDatRepository;
+    private final GaRepository gaRepository;
+    private final ChuyenTauRepository chuyenTauRepository;
+    private final ToaRepository toaRepository;
     
     private boolean isRunning = false;
     
@@ -48,6 +57,9 @@ public class TrainServer {
         this.veRepository = new VeRepository();
         this.hoaDonRepository = new HoaDonRepository();
         this.choDatRepository = new ChoDatRepository();
+        this.gaRepository = new GaRepository();
+        this.chuyenTauRepository = new ChuyenTauRepository();
+        this.toaRepository = new ToaRepository();
     }
     
     public void start() {
@@ -318,6 +330,23 @@ public class TrainServer {
                     
                 case "GET_TONG_HOP":
                     handleGetTongHop();
+                    break;
+                    
+                // === Repository calls ===
+                case "GET_ALL_GA":
+                    handleGetAllGa();
+                    break;
+                    
+                case "GET_ALL_CHUYEN_TAU":
+                    handleGetAllChuyenTau();
+                    break;
+                    
+                case "GET_TOA_BY_CHUYEN":
+                    handleGetToaByChuyen();
+                    break;
+                    
+                case "GET_CHO_DAT_BY_TOA":
+                    handleGetChoDatByToa();
                     break;
                     
                 default:
@@ -604,6 +633,92 @@ public class TrainServer {
             output.writeInt(seatStatusCache.size());
             output.writeBoolean(isRunning);
             output.flush();
+        }
+        
+        // =============================================
+        // REPOSITORY CALL HANDLERS
+        // =============================================
+        
+        private void handleGetAllGa() throws IOException {
+            try {
+                List<Ga> dsGa = gaRepository.findAll();
+                output.writeInt(dsGa.size());
+                for (Ga ga : dsGa) {
+                    output.writeUTF(ga.getMaGa() + "|" + ga.getTenGa());
+                }
+                output.flush();
+            } catch (Exception e) {
+                output.writeInt(-1);
+                output.writeUTF("Loi: " + e.getMessage());
+                output.flush();
+            }
+        }
+        
+        private void handleGetAllChuyenTau() throws IOException {
+            try {
+                List<ChuyenTau> dsChuyen = chuyenTauRepository.findAll();
+                output.writeInt(dsChuyen.size());
+                for (ChuyenTau ct : dsChuyen) {
+                    String data = ct.maChuyenTau + "|" + 
+                                  ct.maTau + "|" +
+                                  ct.maTuyen + "|" +
+                                  ct.ngayKhoiHanh;
+                    output.writeUTF(data);
+                }
+                output.flush();
+            } catch (Exception e) {
+                output.writeInt(-1);
+                output.writeUTF("Loi: " + e.getMessage());
+                output.flush();
+            }
+        }
+        
+        private void handleGetToaByChuyen() throws IOException {
+            try {
+                String maChuyenTau = input.readUTF();
+                // Tìm chuyến tàu để lấy mã tàu
+                ChuyenTau chuyen = chuyenTauRepository.findById(maChuyenTau);
+                if (chuyen == null) {
+                    output.writeInt(0);
+                    output.flush();
+                    return;
+                }
+                
+                String maTau = chuyen.maTau;
+                List<Toa> dsToa = toaRepository.findByMaTauWithLoaiToa(maTau);
+                output.writeInt(dsToa.size());
+                for (Toa toa : dsToa) {
+                    String maLoai = toa.getLoaiToa() != null ? toa.getLoaiToa() : "";
+                    String tenLoai = toa.getLoaiToaRef() != null ? toa.getLoaiToaRef().getTenLoaiToa() : "";
+                    String data = toa.getMaToa() + "|" + maLoai + "|" + tenLoai;
+                    output.writeUTF(data);
+                }
+                output.flush();
+            } catch (Exception e) {
+                output.writeInt(-1);
+                output.writeUTF("Loi: " + e.getMessage());
+                output.flush();
+            }
+        }
+        
+        private void handleGetChoDatByToa() throws IOException {
+            try {
+                String maToa = input.readUTF();
+                List<ChoDat> dsCho = choDatRepository.findByMaToa(maToa);
+                output.writeInt(dsCho.size());
+                for (ChoDat cho : dsCho) {
+                    // Trạng thái: kiểm tra xem có vé không
+                    boolean daDat = cho.getDanhSachVe() != null && !cho.getDanhSachVe().isEmpty();
+                    String trangThai = daDat ? "DA_DAT" : "TRONG";
+                    String data = cho.getMaCho() + "|" + cho.getSoCho() + "|" + trangThai;
+                    output.writeUTF(data);
+                }
+                output.flush();
+            } catch (Exception e) {
+                output.writeInt(-1);
+                output.writeUTF("Loi: " + e.getMessage());
+                output.flush();
+            }
         }
         
         public void sendMessage(String message) {

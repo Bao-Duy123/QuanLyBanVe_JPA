@@ -225,6 +225,128 @@ public class TrainClient {
         localSeatCache.entrySet().removeIf(e -> e.getKey().startsWith(maChuyenTau + "|"));
     }
     
+    // =============================================
+    // REPOSITORY CALLS - Gọi server để lấy dữ liệu
+    // =============================================
+    
+    /**
+     * Lấy danh sách tất cả Ga
+     * @return List<String> với format "maGa|tenGa"
+     */
+    public List<String> getAllGa() {
+        if (!isConnected()) return new ArrayList<>();
+        
+        try {
+            output.writeUTF("GET_ALL_GA");
+            output.flush();
+            
+            int size = input.readInt();
+            if (size < 0) {
+                String error = input.readUTF();
+                System.err.println("[" + clientName + "] Loi getAllGa: " + error);
+                return new ArrayList<>();
+            }
+            
+            List<String> result = new ArrayList<>();
+            for (int i = 0; i < size; i++) {
+                result.add(input.readUTF());
+            }
+            return result;
+        } catch (IOException e) {
+            System.err.println("[" + clientName + "] Loi getAllGa: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+    
+    /**
+     * Lấy danh sách tất cả Chuyến tàu
+     * @return List<String> với format "maChuyenTau|maTau|maTuyen|ngayKhoiHanh"
+     */
+    public List<String> getAllChuyenTau() {
+        if (!isConnected()) return new ArrayList<>();
+        
+        try {
+            output.writeUTF("GET_ALL_CHUYEN_TAU");
+            output.flush();
+            
+            int size = input.readInt();
+            if (size < 0) {
+                String error = input.readUTF();
+                System.err.println("[" + clientName + "] Loi getAllChuyenTau: " + error);
+                return new ArrayList<>();
+            }
+            
+            List<String> result = new ArrayList<>();
+            for (int i = 0; i < size; i++) {
+                result.add(input.readUTF());
+            }
+            return result;
+        } catch (IOException e) {
+            System.err.println("[" + clientName + "] Loi getAllChuyenTau: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+    
+    /**
+     * Lấy danh sách Toa theo chuyến tàu
+     * @return List<String> với format "maToa|maLoaiToa|tenLoaiToa"
+     */
+    public List<String> getToaByChuyenTau(String maChuyenTau) {
+        if (!isConnected()) return new ArrayList<>();
+        
+        try {
+            output.writeUTF("GET_TOA_BY_CHUYEN");
+            output.writeUTF(maChuyenTau);
+            output.flush();
+            
+            int size = input.readInt();
+            if (size < 0) {
+                String error = input.readUTF();
+                System.err.println("[" + clientName + "] Loi getToaByChuyen: " + error);
+                return new ArrayList<>();
+            }
+            
+            List<String> result = new ArrayList<>();
+            for (int i = 0; i < size; i++) {
+                result.add(input.readUTF());
+            }
+            return result;
+        } catch (IOException e) {
+            System.err.println("[" + clientName + "] Loi getToaByChuyen: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+    
+    /**
+     * Lấy danh sách Chỗ đặt theo toa
+     * @return List<String> với format "maChoDat|soCho|trangThai"
+     */
+    public List<String> getChoDatByToa(String maToa) {
+        if (!isConnected()) return new ArrayList<>();
+        
+        try {
+            output.writeUTF("GET_CHO_DAT_BY_TOA");
+            output.writeUTF(maToa);
+            output.flush();
+            
+            int size = input.readInt();
+            if (size < 0) {
+                String error = input.readUTF();
+                System.err.println("[" + clientName + "] Loi getChoDatByToa: " + error);
+                return new ArrayList<>();
+            }
+            
+            List<String> result = new ArrayList<>();
+            for (int i = 0; i < size; i++) {
+                result.add(input.readUTF());
+            }
+            return result;
+        } catch (IOException e) {
+            System.err.println("[" + clientName + "] Loi getChoDatByToa: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+    
     /**
      * Kiểm tra ghế có trống không (từ cache local)
      */

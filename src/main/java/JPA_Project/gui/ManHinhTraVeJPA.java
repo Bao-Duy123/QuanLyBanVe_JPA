@@ -9,6 +9,7 @@ import JPA_Project.repository.ChuyenTauRepository;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -88,14 +89,7 @@ public class ManHinhTraVeJPA extends JPanel {
     private JPanel createTablePanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Color.LIGHT_GRAY),
-                "Danh sách vé tìm thấy",
-                javax.swing.border.TitledBorder.LEFT,
-                javax.swing.border.TitledBorder.TOP,
-                FONT_BOLD_14,
-                PRIMARY_COLOR
-        ));
+        panel.setBorder(createStyledBorder("Danh sách vé tìm thấy", PRIMARY_COLOR));
         panel.setPreferredSize(new Dimension(Integer.MAX_VALUE, 200));
 
         String[] columns = {"Mã vé", "Tên khách hàng", "Tuyến đường", "Số ghế", "Giá vé"};
@@ -114,14 +108,7 @@ public class ManHinhTraVeJPA extends JPanel {
     private JPanel createSearchPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 15));
         panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Color.LIGHT_GRAY),
-                "Tìm kiếm thông tin vé",
-                javax.swing.border.TitledBorder.LEFT,
-                javax.swing.border.TitledBorder.TOP,
-                FONT_BOLD_14,
-                PRIMARY_COLOR
-        ));
+        panel.setBorder(createStyledBorder("Tìm kiếm thông tin vé", PRIMARY_COLOR));
         panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
 
         JPanel searchRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
@@ -143,21 +130,16 @@ public class ManHinhTraVeJPA extends JPanel {
         btnTimKiem.setPreferredSize(new Dimension(100, 30));
         searchRow.add(btnTimKiem);
 
+        panel.removeAll();
         panel.add(searchRow);
+        panel.setAlignmentX(Component.LEFT_ALIGNMENT);
         return panel;
     }
 
     private JPanel createTicketInfoPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
-        panel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Color.LIGHT_GRAY),
-                "Thông tin vé",
-                javax.swing.border.TitledBorder.LEFT,
-                javax.swing.border.TitledBorder.TOP,
-                FONT_BOLD_14,
-                PRIMARY_COLOR
-        ));
+        panel.setBorder(createStyledBorder("Thông tin vé", PRIMARY_COLOR));
         panel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JPanel infoGrid = new JPanel(new GridLayout(4, 4, 20, 10));
@@ -201,6 +183,17 @@ public class ManHinhTraVeJPA extends JPanel {
         grid.add(valueLabel);
     }
 
+    private TitledBorder createStyledBorder(String title, Color color) {
+        return BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(Color.LIGHT_GRAY),
+                title,
+                TitledBorder.LEFT,
+                TitledBorder.TOP,
+                FONT_BOLD_14,
+                color
+        );
+    }
+
     private JPanel createReasonAndButtonPanel() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setOpaque(false);
@@ -208,14 +201,7 @@ public class ManHinhTraVeJPA extends JPanel {
 
         JPanel reasonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
         reasonPanel.setBackground(Color.WHITE);
-        reasonPanel.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(Color.LIGHT_GRAY),
-                "Lý do trả vé",
-                javax.swing.border.TitledBorder.LEFT,
-                javax.swing.border.TitledBorder.TOP,
-                FONT_BOLD_14,
-                PRIMARY_COLOR
-        ));
+        reasonPanel.setBorder(createStyledBorder("Lý do trả vé", PRIMARY_COLOR));
 
         reasonPanel.add(new JLabel("Chọn lý do trả vé"));
         cbLyDoTraVe = new JComboBox<>(new String[]{"Chọn lý do trả vé", "Khách hàng thay đổi kế hoạch", "Lỗi nhập liệu", "Chuyến tàu bị hủy"});
@@ -288,7 +274,7 @@ public class ManHinhTraVeJPA extends JPanel {
                 }
                 String tenKH = v.getTenKhachHang() != null ? v.getTenKhachHang() : "Khách lẻ";
                 String ghe = v.getChoDat() != null ? v.getChoDat().getSoCho() : "---";
-                
+
                 modelKetQua.addRow(new Object[]{
                         v.getMaVe(),
                         tenKH,
@@ -380,7 +366,7 @@ public class ManHinhTraVeJPA extends JPanel {
 
         if (confirm == JOptionPane.YES_OPTION) {
             boolean success = veRepository.capNhatTrangThai(veHienTai.getMaVe(), "DA_HUY");
-            
+
             if (success) {
                 JOptionPane.showMessageDialog(this, "Trả vé thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                 hienThiDuLieuMau();
