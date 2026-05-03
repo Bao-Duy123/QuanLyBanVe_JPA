@@ -108,6 +108,13 @@ public class NetworkManager {
         return "Chua ket noi";
     }
     
+    /**
+     * Lấy TrainClient để gọi trực tiếp
+     */
+    public TrainClient getTrainClient() {
+        return trainClient;
+    }
+    
     // ========== SEAT MANAGEMENT ==========
     
     /**
