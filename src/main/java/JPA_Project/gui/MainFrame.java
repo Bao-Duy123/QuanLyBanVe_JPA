@@ -22,6 +22,7 @@ public class MainFrame extends JFrame implements ActionListener {
     private final NhanVien nhanVien;
     private final String chucVu;
     private final boolean isQuanLy;
+    private final boolean isAdmin;
 
     private static final Color MAU_CHINH = new Color(41, 128, 185);
     private static final Color MAU_DUOC_CHON = new Color(52, 152, 219);
@@ -34,7 +35,8 @@ public class MainFrame extends JFrame implements ActionListener {
         this.nhanVien = nhanVien;
         this.chucVu = chucVu;
         
-        // Kiểm tra quyền: Quản lý nếu chucVu chứa "QUAN_LY", "QL", "ADMIN" hoặc mã NV bắt đầu bằng "NVQL", "NVTP"
+        // Kiểm tra quyền: Admin có quyền truy cập tất cả
+        this.isAdmin = isAdminRole(nhanVien, chucVu);
         this.isQuanLy = isQuanLyRole(nhanVien, chucVu);
 
         setTitle("Hệ thống Bán Vé Tàu - " + nhanVien.getHoTen());
@@ -52,6 +54,14 @@ public class MainFrame extends JFrame implements ActionListener {
         // Chuyển đến dashboard phù hợp với vai trò
         chuyenManHinh("trangChu");
         setVisible(true);
+    }
+
+    /**
+     * Kiểm tra xem tài khoản có phải là Admin hay không
+     */
+    private boolean isAdminRole(NhanVien nv, String chucVu) {
+        if (chucVu == null) return false;
+        return "ADMIN".equals(chucVu.toUpperCase());
     }
 
     /**
@@ -100,19 +110,44 @@ public class MainFrame extends JFrame implements ActionListener {
         panel.add(taoDuongKe());
 
         // ======= MENU DASHBOARD =======
-        JButton nutTrangChu;
-        if (isQuanLy) {
-            nutTrangChu = taoMucMenu("Dashboard", "trangChu");
-        } else {
-            nutTrangChu = taoMucMenu("Dashboard", "trangChu");
-        }
+        JButton nutTrangChu = taoMucMenu("Dashboard", "trangChu");
         panel.add(nutTrangChu);
         panel.add(taoDuongKe());
 
-        if (isQuanLy) {
-            // ======= MENU QUẢN LÝ =======
-            
-            // Dashboard (QuanLyDashboardPanel)
+        // ======= MENU BÁN VÉ =======
+        JButton nutBanVe = taoMucMenu("Bán vé", "banVe");
+        panel.add(nutBanVe);
+        panel.add(taoDuongKe());
+
+        // Đổi vé
+        JButton nutDoiVe = taoMucMenu("Đổi vé", "doiVe");
+        panel.add(nutDoiVe);
+        panel.add(taoDuongKe());
+
+        // Trả vé
+        JButton nutTraVe = taoMucMenu("Trả vé", "traVe");
+        panel.add(nutTraVe);
+        panel.add(taoDuongKe());
+
+        // Tra cứu vé
+        JButton nutTraCuuVe = taoMucMenu("Tra cứu vé", "traCuuVe");
+        panel.add(nutTraCuuVe);
+        panel.add(taoDuongKe());
+
+        // Tra cứu hóa đơn
+        JButton nutTraCuuHD = taoMucMenu("Tra cứu HĐ", "traCuuHD");
+        panel.add(nutTraCuuHD);
+        panel.add(taoDuongKe());
+
+        // Chỉ hiển thị menu Quản lý cho ADMIN hoặc QUAN_LY
+        if (isAdmin || isQuanLy) {
+            panel.add(Box.createVerticalStrut(10));
+            String labelText = isAdmin ? "  ===== QUẢN TRỊ =====" : "  ===== QUẢN LÝ =====";
+            JLabel lblQuanLy = new JLabel(labelText);
+            lblQuanLy.setFont(new Font("Segoe UI", Font.BOLD, 12));
+            lblQuanLy.setForeground(new Color(255, 215, 0)); // Gold color
+            lblQuanLy.setAlignmentX(Component.LEFT_ALIGNMENT);
+            panel.add(lblQuanLy);
             panel.add(taoDuongKe());
 
             // QL Chuyến tàu
@@ -135,42 +170,9 @@ public class MainFrame extends JFrame implements ActionListener {
             panel.add(nutQLKhuyenMai);
             panel.add(taoDuongKe());
 
-            // Tra cứu hóa đơn
-            JButton nutTraCuuHD = taoMucMenu("Tra cứu HĐ", "traCuuHD");
-            panel.add(nutTraCuuHD);
-            panel.add(taoDuongKe());
-
             // Thống kê
             JButton nutThongKe = taoMucMenu("Thống kê", "thongKe");
             panel.add(nutThongKe);
-            panel.add(taoDuongKe());
-
-        } else {
-            // ======= MENU BÁN VÉ =======
-            
-            // Bán vé
-            JButton nutBanVe = taoMucMenu("Bán vé", "banVe");
-            panel.add(nutBanVe);
-            panel.add(taoDuongKe());
-
-            // Đổi vé
-            JButton nutDoiVe = taoMucMenu("Đổi vé", "doiVe");
-            panel.add(nutDoiVe);
-            panel.add(taoDuongKe());
-
-            // Trả vé
-            JButton nutTraVe = taoMucMenu("Trả vé", "traVe");
-            panel.add(nutTraVe);
-            panel.add(taoDuongKe());
-
-            // Tra cứu vé
-            JButton nutTraCuuVe = taoMucMenu("Tra cứu vé", "traCuuVe");
-            panel.add(nutTraCuuVe);
-            panel.add(taoDuongKe());
-
-            // Tra cứu hóa đơn
-            JButton nutTraCuuHD = taoMucMenu("Tra cứu HĐ", "traCuuHD");
-            panel.add(nutTraCuuHD);
             panel.add(taoDuongKe());
         }
 
@@ -281,34 +283,24 @@ public class MainFrame extends JFrame implements ActionListener {
         cardLayout = new CardLayout();
         panelNoiDung = new JPanel(cardLayout);
 
-        if (isQuanLy) {
-            // Dashboard cho Quản lý
-            panelNoiDung.add(new QuanLyDashboardPanel(nhanVien), "trangChu");
-            // QL Chuyến tàu
+        // Dashboard
+        panelNoiDung.add(new BanVeDashboardPanel(nhanVien), "trangChu");
+        
+        // Panel bán vé
+        panelNoiDung.add(new BanVePanelJPA(nhanVien), "banVe");
+        panelNoiDung.add(new ManHinhDoiVeJPA(), "doiVe");
+        panelNoiDung.add(new ManHinhTraVeJPA(), "traVe");
+        panelNoiDung.add(new TraCuuPanel(), "traCuuVe");
+        panelNoiDung.add(new TraCuuPanel(), "traCuuHD");
+        
+        // Panel quản lý (chỉ khởi tạo khi cần)
+        if (isAdmin || isQuanLy) {
+            panelNoiDung.add(new QuanLyDashboardPanel(nhanVien), "qlDashboard");
             panelNoiDung.add(new ManHinhQuanLyChuyenTauJPA(), "qlChuyenTau");
-            // QL Nhân viên
             panelNoiDung.add(new ManHinhQuanLyNhanVienJPA(), "quanLyNhanVien");
-            // QL Giá vé
             panelNoiDung.add(new ManHinhQuanLyGiaVeJPA(), "qlGiaVe");
-            // QL Khuyến mãi
             panelNoiDung.add(new ManHinhQuanLyKhuyenMaiJPA(), "qlKhuyenMai");
-            // Tra cứu hóa đơn
-            panelNoiDung.add(new TraCuuPanel(), "traCuuHD");
-            // Thống kê
             panelNoiDung.add(new ThongKePanel(), "thongKe");
-        } else {
-            // Dashboard cho Nhân viên bán vé
-            panelNoiDung.add(new BanVeDashboardPanel(nhanVien), "trangChu");
-            // Bán vé
-            panelNoiDung.add(new BanVePanelJPA(nhanVien), "banVe");
-            // Đổi vé
-            panelNoiDung.add(new ManHinhDoiVeJPA(), "doiVe");
-            // Trả vé
-            panelNoiDung.add(new ManHinhTraVeJPA(), "traVe");
-            // Tra cứu vé
-            panelNoiDung.add(new TraCuuPanel(), "traCuuVe");
-            // Tra cứu hóa đơn
-            panelNoiDung.add(new TraCuuPanel(), "traCuuHD");
         }
 
         add(panelNoiDung, BorderLayout.CENTER);
@@ -370,7 +362,14 @@ public class MainFrame extends JFrame implements ActionListener {
         }
 
         if ("troGiup".equals(tenCard)) {
-            String roleInfo = isQuanLy ? "Quản lý" : "Nhân viên bán vé";
+            String roleInfo;
+            if (isAdmin) {
+                roleInfo = "Quản trị hệ thống";
+            } else if (isQuanLy) {
+                roleInfo = "Quản lý";
+            } else {
+                roleInfo = "Nhân viên bán vé";
+            }
             JOptionPane.showMessageDialog(this, 
                     "Hệ thống Bán Vé Tàu\n" +
                     "Tài khoản: " + nhanVien.getMaNV() + "\n" +

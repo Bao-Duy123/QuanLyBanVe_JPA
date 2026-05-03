@@ -30,6 +30,21 @@ public class TuyenRepository extends BaseRepository<Tuyen, String> {
                 .getResultList());
     }
 
+    public void save(Tuyen entity) {
+        Tx.inTxVoid(em -> {
+            Tuyen existing = em.find(Tuyen.class, entity.getMaTuyen());
+            if (existing != null) {
+                existing.setTenTuyen(entity.getTenTuyen());
+                existing.setGaDau(entity.getGaDau());
+                existing.setGaCuoi(entity.getGaCuoi());
+                existing.setDonGiaKM(entity.getDonGiaKM());
+                em.merge(existing);
+            } else {
+                em.persist(entity);
+            }
+        });
+    }
+
     public static void main(String[] args) {
         //test nhanh
         //lấy toàn bộ tuyến + ga trong tuyến trong csdl

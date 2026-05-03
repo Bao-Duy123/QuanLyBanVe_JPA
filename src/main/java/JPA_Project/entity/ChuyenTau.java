@@ -3,6 +3,7 @@ package JPA_Project.entity;
 import JPA_Project.converter.TrangThaiChuyenTauConverter;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnTransformer;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -25,6 +26,7 @@ public class ChuyenTau {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "MaTuyen", referencedColumnName = "MaTuyen", insertable = false, updatable = false)
+    @ColumnTransformer(read = "TRIM(MaTuyen)")
     public Tuyen tuyen;
 
     @Column(name = "MaTau")

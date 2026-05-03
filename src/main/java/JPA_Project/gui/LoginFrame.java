@@ -187,8 +187,10 @@ public class LoginFrame extends JFrame implements ActionListener {
         btnDangNhap.setFont(new Font("Arial", Font.BOLD, 16));
         btnDangNhap.setFocusPainted(false);
         btnDangNhap.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
         btnDangNhap.setOpaque(true);
         btnDangNhap.setBorderPainted(false);
+
         btnDangNhap.setAlignmentX(Component.LEFT_ALIGNMENT);
         btnDangNhap.addActionListener(this);
         bang.add(btnDangNhap);

@@ -354,8 +354,8 @@ public class BanVeService {
         double heSoLoaiVe = layHeSoLoaiVe(maLoaiVe);
 
         // 6. Tính giá cơ bản
-        // Công thức: Khoảng cách * Đơn giá * Hệ số toa * Hệ số loại vé / 1000
-        double giaCoBan = (double) khoangCach * donGia * heSoToa * heSoLoaiVe / 1000.0;
+        // Công thức: Khoảng cách * Đơn giá * Hệ số toa * Hệ số loại vé
+        double giaCoBan = (double) khoangCach * donGia * heSoToa * heSoLoaiVe ;
 
         System.out.println("[BanVeService] Giá cơ bản: " + khoangCach + "km * " + donGia + " * " 
                 + heSoToa + " * " + heSoLoaiVe + " = " + giaCoBan);
@@ -675,8 +675,13 @@ public class BanVeService {
                     throw new RuntimeException("Không tìm thấy chuyến tàu: " + maChuyenTau);
                 }
 
-                // Lấy thông tin tuyến cho việc tính khoảng cách
-                Tuyen tuyen = chuyenTau.getTuyen();
+                // Lấy thông tin tuyến cho việc tính khoảng cách - dùng JOIN FETCH để tránh lazy load
+                Tuyen tuyen = em.createQuery(
+                        "SELECT t FROM Tuyen t WHERE t.maTuyen = :maTuyen", Tuyen.class)
+                        .setParameter("maTuyen", chuyenTau.getMaTuyen())
+                        .getResultStream()
+                        .findFirst()
+                        .orElse(null);
                 int donGia = tuyen != null ? tuyen.getDonGiaKM() : 3000;
 
                 // Lấy thông tin khuyến mãi (nếu có)
@@ -688,25 +693,46 @@ public class BanVeService {
                 // Lấy thông tin loại toa cho mỗi ghế
                 Map<String, LoaiToa> loaiToaMap = new HashMap<>();
                 for (TicketDTO ticket : listVe) {
-                    String maToa = ticket.maChoDat().split("-")[0]; // Lấy mã toa từ mã chỗ
-                    if (!loaiToaMap.containsKey(maToa)) {
-                        // Tìm loại toa từ toa
+                    // Mã chỗ format: "SE1-3-C07" -> cần lấy "SE1-3" làm key
+                    String maToa = ticket.maChoDat();
+                    String[] parts = maToa.split("-");
+                    String keyMaToa = parts.length >= 2 ? parts[0] + "-" + parts[1] : parts[0]; // "SE1-3"
+                    
+                    if (!loaiToaMap.containsKey(keyMaToa)) {
+                        // Tìm loại toa từ toa - dùng key đúng
                         List<Toa> toaList = em.createQuery(
                                 "SELECT t FROM Toa t JOIN FETCH t.loaiToaRef WHERE t.maToa = :maToa", Toa.class)
-                                .setParameter("maToa", maToa)
+                                .setParameter("maToa", keyMaToa)
                                 .getResultList();
                         if (!toaList.isEmpty() && toaList.get(0).getLoaiToaRef() != null) {
-                            loaiToaMap.put(maToa, toaList.get(0).getLoaiToaRef());
+                            loaiToaMap.put(keyMaToa, toaList.get(0).getLoaiToaRef());
+                            System.out.println("[BanVeService] Load LoaiToa: " + keyMaToa + " -> " + toaList.get(0).getLoaiToaRef().getHeSo());
                         }
                     }
                 }
 
-                // Tính khoảng cách ga một lần
-                int khoangCach = 500;
-                if (chuyenTau.getGaDi() != null && chuyenTau.getGaDen() != null) {
-                    khoangCach = tinhKhoangCachGa(chuyenTau.getMaTuyen(),
-                            chuyenTau.getGaDi().getMaGa(),
-                            chuyenTau.getGaDen().getMaGa());
+                // Tính khoảng cách ga một lần - dùng native query để lấy khoảng cách từ GA_TRONG_TUYEN
+                int khoangCach = 500; // Giá trị mặc định
+                
+                // Query để lấy khoảng cách từ bảng GA_TRONG_TUYEN
+                // Tính = KhoangCachTichLuy(gaDen) - KhoangCachTichLuy(gaDi)
+                String sqlKhoangCach = 
+                    "SELECT (SELECT ISNULL(MAX(g2.KhoangCachTichLuy), 0) FROM GA_TRONG_TUYEN g2 WHERE g2.MaTuyen = :maTuyen AND g2.MaGa = :gaDen) - " +
+                    "(SELECT ISNULL(MIN(g1.KhoangCachTichLuy), 0) FROM GA_TRONG_TUYEN g1 WHERE g1.MaTuyen = :maTuyen AND g1.MaGa = :gaDi)";
+                
+                try {
+                    Object result = em.createNativeQuery(sqlKhoangCach)
+                            .setParameter("maTuyen", chuyenTau.getMaTuyen())
+                            .setParameter("gaDi", chuyenTau.getGaDi() != null ? chuyenTau.getGaDi().getMaGa() : "UNKNOWN")
+                            .setParameter("gaDen", chuyenTau.getGaDen() != null ? chuyenTau.getGaDen().getMaGa() : "UNKNOWN")
+                            .getSingleResult();
+                    
+                    if (result != null && ((Number) result).intValue() > 0) {
+                        khoangCach = Math.abs(((Number) result).intValue());
+                    }
+                    System.out.println("[BanVeService] Khoảng cách tính được: " + khoangCach + " km");
+                } catch (Exception e) {
+                    System.out.println("[BanVeService] Không tính được khoảng cách, dùng mặc định 500km. Lỗi: " + e.getMessage());
                 }
 
                 int sttVe = 0;
@@ -717,10 +743,16 @@ public class BanVeService {
                     KhachHang kh = khachHangMap.get(ticket.maChoDat());
                     String maKh = kh != null ? kh.getMaKH() : maKHDaiDien;
 
-                    // Lấy thông tin loại toa
-                    String maToa = ticket.maChoDat().split("-")[0];
+                    // Lấy thông tin loại toa - mã toa format: "SE1-3-C07" -> "SE1-3"
+                    String maToa = ticket.maChoDat();
+                    String[] parts = maToa.split("-");
+                    if (parts.length >= 2) {
+                        maToa = parts[0] + "-" + parts[1]; // "SE1-3"
+                    }
                     LoaiToa loaiToa = loaiToaMap.get(maToa);
                     double heSoToa = loaiToa != null ? loaiToa.getHeSo() : 1.0;
+                    
+                    System.out.println("[BanVeService] Tính giá: maToa=" + maToa + ", heSo=" + heSoToa);
 
                     // Tính giá vé
                     double giaGoc = tinhGiaGoc(khoangCach, donGia, heSoToa, ticket.maLoaiVe());
@@ -896,7 +928,8 @@ public class BanVeService {
      */
     private double tinhGiaGoc(int khoangCach, int donGia, double heSoToa, String maLoaiVe) {
         double heSoLoaiVe = layHeSoLoaiVe(maLoaiVe);
-        return (double) khoangCach * donGia * heSoToa * heSoLoaiVe / 1000.0;
+        // Công thức: Khoảng cách * Đơn giá * Hệ số toa * Hệ số loại vé
+        return (double) khoangCach * donGia * heSoToa * heSoLoaiVe;
     }
 
     /**

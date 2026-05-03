@@ -69,7 +69,7 @@
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="jakarta.persistence.jdbc.url"
-                      value="jdbc:sqlserver://localhost:1433;databaseName=QuanLyVeTau;trustServerCertificate=true; encrypt=true;characterEncoding=UTF-8;sendStringParametersAsUnicode=true;loginTimeout=30;" />
+                      value="jdbc:sqlserver://localhost:1433;databaseName=QuanLyVeTau_JPA_Database_SQL;trustServerCertificate=true; encrypt=true;characterEncoding=UTF-8;sendStringParametersAsUnicode=true;loginTimeout=30;" />
             <property name="jakarta.persistence.jdbc.user" value="sa" />
             <property name="jakarta.persistence.jdbc.password" value="sapassword" />
             <property name="jakarta.persistence.jdbc.driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />

@@ -60,4 +60,55 @@ public class HoaDonRepository extends BaseRepository<HoaDon, String> {
                 .setParameter("denNgay", denNgay)
                 .getResultList());
     }
+
+    public List<HoaDon> findByCccdDetailed(String cccd) {
+        return Tx.noTx(em -> em.createQuery(
+                        "select distinct h from HoaDon h left join fetch h.khachHang where h.maKhachHang in (select kh.maKhachHang from KhachHang kh where kh.soCCCD = :cccd) order by h.ngayLap desc",
+                        HoaDon.class)
+                .setParameter("cccd", cccd)
+                .getResultList());
+    }
+
+    public List<HoaDon> findBySoDienThoaiDetailed(String sdt) {
+        return Tx.noTx(em -> em.createQuery(
+                        "select distinct h from HoaDon h left join fetch h.khachHang where h.maKhachHang in (select kh.maKhachHang from KhachHang kh where kh.sdt = :sdt) order by h.ngayLap desc",
+                        HoaDon.class)
+                .setParameter("sdt", sdt)
+                .getResultList());
+    }
+
+    public List<HoaDon> findByMaHDDetailed(String maHD) {
+        return Tx.noTx(em -> em.createQuery(
+                        "select distinct h from HoaDon h " +
+                                "left join fetch h.khachHang " +
+                                "left join fetch h.khuyenMai " +
+                                "where h.maHD = :maHD",
+                        HoaDon.class)
+                .setParameter("maHD", maHD)
+                .getResultList());
+    }
+
+    public List<HoaDon> findAllWithDetails() {
+        return Tx.noTx(em -> em.createQuery(
+                        "select distinct h from HoaDon h " +
+                                "left join fetch h.khachHang " +
+                                "left join fetch h.khuyenMai " +
+                                "order by h.ngayLap desc",
+                        HoaDon.class)
+                .getResultList());
+    }
+
+    public Optional<HoaDon> findByMaHDWithDetails(String maHD) {
+        return Tx.noTx(em -> em.createQuery(
+                        "select distinct h from HoaDon h " +
+                                "left join fetch h.khachHang " +
+                                "left join fetch h.khuyenMai " +
+                                "left join fetch h.chiTietHoaDons cthd " +
+                                "left join fetch cthd.ve " +
+                                "where h.maHD = :maHD",
+                        HoaDon.class)
+                .setParameter("maHD", maHD)
+                .getResultStream()
+                .findFirst());
+    }
 }

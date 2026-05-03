@@ -21,4 +21,17 @@ public class LoaiToaRepository extends BaseRepository<LoaiToa, String> {
                         LoaiToa.class)
                 .getResultList());
     }
+
+    public void save(LoaiToa entity) {
+        Tx.inTxVoid(em -> {
+            LoaiToa existing = em.find(LoaiToa.class, entity.getMaLoaiToa());
+            if (existing != null) {
+                existing.setTenLoaiToa(entity.getTenLoaiToa());
+                existing.setHeSo(entity.getHeSo());
+                em.merge(existing);
+            } else {
+                em.persist(entity);
+            }
+        });
+    }
 }

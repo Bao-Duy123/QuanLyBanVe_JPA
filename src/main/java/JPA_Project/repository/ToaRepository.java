@@ -42,6 +42,9 @@ public class ToaRepository extends BaseRepository<Toa, String> {
             }
             
             System.out.println("[ToaRepository] Tìm thấy " + result.size() + " toa cho tàu: " + maTau);
+            for (Toa toa : result) {
+                System.out.println(" - Toa: " + toa.getMaToa() + ", Loại: " + (toa.getLoaiToaRef() != null ? toa.getLoaiToaRef().getMaLoaiToa() : "null"));
+            }
             return result;
         });
     }

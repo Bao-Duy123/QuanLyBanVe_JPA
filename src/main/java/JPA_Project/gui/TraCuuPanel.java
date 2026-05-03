@@ -2,6 +2,7 @@ package JPA_Project.gui;
 
 import JPA_Project.entity.Ve;
 import JPA_Project.entity.HoaDon;
+import JPA_Project.entity.ChiTietHoaDon;
 import JPA_Project.repository.VeRepository;
 import JPA_Project.repository.HoaDonRepository;
 import JPA_Project.repository.KhachHangRepository;
@@ -9,6 +10,8 @@ import JPA_Project.repository.KhachHangRepository;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -30,6 +33,7 @@ public class TraCuuPanel extends JPanel {
     private JButton btnTimKiemHD;
     private JButton btnTaiLaiHD;
     private JTable tblHoaDon;
+    private JButton btnXemChiTiet;
 
     public TraCuuPanel() {
         this.veRepository = new VeRepository();
@@ -148,7 +152,7 @@ public class TraCuuPanel extends JPanel {
 
         panel.add(searchPanel, BorderLayout.NORTH);
 
-        String[] columns = {"Mã HD", "Khách hàng", "NV lập", "Ngày lập", "Tổng cộng", "Tổng tiền", "Phương thức", "Mã KM"};
+        String[] columns = {"Mã HD", "Khách hàng", "NV lập", "Ngày lập", "Tổng cộng", "Tổng tiền", "Phương thức", "Khuyến mãi", "Chi tiết"};
         javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -165,7 +169,23 @@ public class TraCuuPanel extends JPanel {
         tblHoaDon.getColumnModel().getColumn(4).setPreferredWidth(100);
         tblHoaDon.getColumnModel().getColumn(5).setPreferredWidth(100);
         tblHoaDon.getColumnModel().getColumn(6).setPreferredWidth(120);
-        tblHoaDon.getColumnModel().getColumn(7).setPreferredWidth(100);
+        tblHoaDon.getColumnModel().getColumn(7).setPreferredWidth(120);
+        tblHoaDon.getColumnModel().getColumn(8).setPreferredWidth(80);
+
+        MouseAdapter buttonClickHandler = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int row = tblHoaDon.rowAtPoint(e.getPoint());
+                int col = tblHoaDon.columnAtPoint(e.getPoint());
+                if (col == 8 && row >= 0) {
+                    String maHD = (String) tblHoaDon.getValueAt(row, 0);
+                    if (maHD != null && !maHD.isEmpty()) {
+                        hienThiChiTietHoaDon(maHD);
+                    }
+                }
+            }
+        };
+        tblHoaDon.addMouseListener(buttonClickHandler);
 
         JScrollPane scrollPane = new JScrollPane(tblHoaDon);
         panel.add(scrollPane, BorderLayout.CENTER);
@@ -202,7 +222,7 @@ public class TraCuuPanel extends JPanel {
                         break;
                 }
 
-                return veRepository.timVeTheoKhachHang(hoTen, sdt, cccd, maVe);
+                return veRepository.timVeTheoKhachHangDetailed(hoTen, sdt, cccd, maVe);
             }
 
             @Override
@@ -284,11 +304,11 @@ public class TraCuuPanel extends JPanel {
             protected List<HoaDon> doInBackground() {
                 switch (loaiTimKiem) {
                     case "CCCD":
-                        return hoaDonRepository.findByCccd(giaTri);
+                        return hoaDonRepository.findByCccdDetailed(giaTri);
                     case "Số điện thoại":
-                        return hoaDonRepository.findBySoDienThoai(giaTri);
+                        return hoaDonRepository.findBySoDienThoaiDetailed(giaTri);
                     default:
-                        return hoaDonRepository.findByMaHD(giaTri).map(List::of).orElse(List.of());
+                        return hoaDonRepository.findByMaHDDetailed(giaTri);
                 }
             }
 
@@ -317,6 +337,11 @@ public class TraCuuPanel extends JPanel {
                 tenKH = hd.getKhachHang().getHoTen() != null ? hd.getKhachHang().getHoTen() : "";
             }
 
+            String tenKM = "";
+            if (hd.getKhuyenMai() != null) {
+                tenKM = hd.getKhuyenMai().getTenKM() != null ? hd.getKhuyenMai().getTenKM() : "";
+            }
+
             model.addRow(new Object[]{
                 hd.getMaHD() != null ? hd.getMaHD() : "",
                 tenKH,
@@ -325,7 +350,8 @@ public class TraCuuPanel extends JPanel {
                 String.format("%.0f", hd.getTongCong()),
                 String.format("%.0f", hd.getTongTien()),
                 hd.getPhuongThuc() != null ? hd.getPhuongThuc() : "",
-                hd.getMaKM() != null ? hd.getMaKM() : ""
+                tenKM,
+                "Xem"
             });
         }
     }
@@ -334,7 +360,7 @@ public class TraCuuPanel extends JPanel {
         SwingWorker<List<HoaDon>, Void> worker = new SwingWorker<>() {
             @Override
             protected List<HoaDon> doInBackground() {
-                return hoaDonRepository.findAll();
+                return hoaDonRepository.findAllWithDetails();
             }
 
             @Override
@@ -347,5 +373,137 @@ public class TraCuuPanel extends JPanel {
             }
         };
         worker.execute();
+    }
+
+    private void hienThiChiTietHoaDon(String maHD) {
+        SwingWorker<HoaDon, Void> worker = new SwingWorker<>() {
+            @Override
+            protected HoaDon doInBackground() {
+                return hoaDonRepository.findByMaHDWithDetails(maHD).orElse(null);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    HoaDon hd = get();
+                    if (hd != null) {
+                        hienThiPopupChiTiet(hd);
+                    } else {
+                        JOptionPane.showMessageDialog(TraCuuPanel.this, "Không tìm thấy hóa đơn!");
+                    }
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(TraCuuPanel.this, "Lỗi: " + e.getMessage());
+                }
+            }
+        };
+        worker.execute();
+    }
+
+    private void hienThiPopupChiTiet(HoaDon hd) {
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Chi tiết hóa đơn " + hd.getMaHD(), true);
+        dialog.setSize(700, 500);
+        dialog.setLocationRelativeTo(this);
+
+        JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
+        contentPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
+        contentPanel.setBackground(Color.WHITE);
+
+        // Panel thông tin hóa đơn
+        JPanel infoPanel = new JPanel(new GridLayout(0, 2, 10, 5));
+        infoPanel.setBackground(Color.WHITE);
+        infoPanel.setBorder(BorderFactory.createTitledBorder("Thông tin hóa đơn"));
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        addInfoRow(infoPanel, "Mã hóa đơn:", hd.getMaHD() != null ? hd.getMaHD() : "");
+        addInfoRow(infoPanel, "Khách hàng:", hd.getKhachHang() != null ? hd.getKhachHang().getHoTen() : "");
+        addInfoRow(infoPanel, "NV lập:", hd.getMaNVLap() != null ? hd.getMaNVLap() : "");
+        addInfoRow(infoPanel, "Ngày lập:", hd.getNgayLap() != null ? hd.getNgayLap().format(dtf) : "");
+        addInfoRow(infoPanel, "Phương thức TT:", hd.getPhuongThuc() != null ? hd.getPhuongThuc() : "");
+        String tenKM = "";
+        if(hd.getKhuyenMai() != null) {
+            tenKM = hd.getKhuyenMai().getTenKM() != "" ? hd.getKhuyenMai().getTenKM() : "Không có";
+        }
+        addInfoRow(infoPanel, "Khuyến mãi:", hd.getKhuyenMai() != null ?  tenKM : "Không có");
+
+        contentPanel.add(infoPanel, BorderLayout.NORTH);
+
+        // Panel chi tiết các vé
+        JPanel chiTietPanel = new JPanel(new BorderLayout());
+        chiTietPanel.setBorder(BorderFactory.createTitledBorder("Chi tiết vé"));
+        chiTietPanel.setBackground(Color.WHITE);
+
+        String[] columns = {"Mã vé", "Mã chuyến tàu", "Mã chỗ", "Giá vé"};
+        javax.swing.table.DefaultTableModel model = new javax.swing.table.DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        JTable tblChiTiet = new JTable(model);
+        tblChiTiet.setRowHeight(25);
+        tblChiTiet.setFont(new Font("Arial", Font.PLAIN, 12));
+
+        // Load chi tiết
+        if (hd.getChiTietHoaDons() != null && !hd.getChiTietHoaDons().isEmpty()) {
+            for (ChiTietHoaDon ct : hd.getChiTietHoaDons()) {
+                String maVe = ct.getMaVe() != null ? ct.getMaVe() : "";
+                String maChuyen = "";
+                String maCho = ct.getMaVe() != null ? ct.getMaVe() : "";
+                
+                // Lấy thông tin từ Ve nếu có
+                if (ct.getVe() != null) {
+                    maChuyen = ct.getVe().getMaChuyenTau() != null ? ct.getVe().getMaChuyenTau() : "";
+                    maCho = ct.getVe().getMaChoDat() != null ? ct.getVe().getMaChoDat() : "";
+                }
+                
+                model.addRow(new Object[]{
+                    maVe,
+                    maChuyen,
+                    maCho,
+                    ct.getDonGia() > 0 ? String.format("%.0f VNĐ", ct.getDonGia()) : "N/A"
+                });
+            }
+        } else {
+            model.addRow(new Object[]{"Không có chi tiết vé", "", "", ""});
+        }
+
+        JScrollPane scrollPane = new JScrollPane(tblChiTiet);
+        chiTietPanel.add(scrollPane, BorderLayout.CENTER);
+
+        contentPanel.add(chiTietPanel, BorderLayout.CENTER);
+
+        // Panel tổng tiền
+        JPanel tongTienPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        tongTienPanel.setBackground(Color.WHITE);
+        tongTienPanel.setBorder(new EmptyBorder(10, 0, 0, 0));
+
+        JLabel lblTongCong = new JLabel("Tổng cộng: " + String.format("%.0f VNĐ", hd.getTongCong() != null ? hd.getTongCong() : 0));
+        lblTongCong.setFont(new Font("Arial", Font.BOLD, 14));
+        lblTongCong.setForeground(new Color(0, 102, 204));
+
+        JLabel lblTongTien = new JLabel("Tổng tiền: " + String.format("%.0f VNĐ", hd.getTongTien()));
+        lblTongTien.setFont(new Font("Arial", Font.BOLD, 14));
+        lblTongTien.setForeground(new Color(220, 53, 69));
+
+        tongTienPanel.add(lblTongCong);
+        tongTienPanel.add(Box.createHorizontalStrut(30));
+        tongTienPanel.add(lblTongTien);
+
+        contentPanel.add(tongTienPanel, BorderLayout.SOUTH);
+
+        dialog.setContentPane(contentPanel);
+        dialog.setVisible(true);
+    }
+
+    private void addInfoRow(JPanel panel, String label, String value) {
+        JLabel lbl = new JLabel(label);
+        lbl.setFont(new Font("Arial", Font.BOLD, 12));
+        panel.add(lbl);
+
+        JLabel valueLabel = new JLabel(value);
+        valueLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        panel.add(valueLabel);
     }
 }
