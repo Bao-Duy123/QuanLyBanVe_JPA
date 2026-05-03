@@ -206,6 +206,40 @@ public class NetworkManager {
         return allSuccess;
     }
     
+    // ========== REPOSITORY CALLS ==========
+
+    /**
+     * Lấy danh sách Ga từ server
+     */
+    public List<String> getAllGa() {
+        if (!isConnected()) return new ArrayList<>();
+        return trainClient.getAllGa();
+    }
+
+    /**
+     * Lấy danh sách Chuyến tàu từ server
+     */
+    public List<String> getAllChuyenTau() {
+        if (!isConnected()) return new ArrayList<>();
+        return trainClient.getAllChuyenTau();
+    }
+
+    /**
+     * Lấy danh sách Toa theo chuyến tàu
+     */
+    public List<String> getToaByChuyenTau(String maChuyenTau) {
+        if (!isConnected()) return new ArrayList<>();
+        return trainClient.getToaByChuyenTau(maChuyenTau);
+    }
+
+    /**
+     * Lấy danh sách Chỗ đặt theo toa
+     */
+    public List<String> getChoDatByToa(String maToa) {
+        if (!isConnected()) return new ArrayList<>();
+        return trainClient.getChoDatByToa(maToa);
+    }
+    
     // ========== LISTENERS ==========
     
     public interface ConnectionListener {
