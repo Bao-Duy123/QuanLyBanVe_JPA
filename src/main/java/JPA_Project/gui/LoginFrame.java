@@ -187,8 +187,10 @@ public class LoginFrame extends JFrame implements ActionListener {
         btnDangNhap.setFont(new Font("Arial", Font.BOLD, 16));
         btnDangNhap.setFocusPainted(false);
         btnDangNhap.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
         btnDangNhap.setOpaque(true);
         btnDangNhap.setBorderPainted(false);
+
         btnDangNhap.setAlignmentX(Component.LEFT_ALIGNMENT);
         btnDangNhap.addActionListener(this);
         bang.add(btnDangNhap);
@@ -292,7 +294,16 @@ public class LoginFrame extends JFrame implements ActionListener {
                         System.out.println("[DEBUG-LoginFrame] Login failed - invalid credentials");
                         return LoginResult.dangNhapThatBai("Tên đăng nhập hoặc mật khẩu không đúng.");
                     }
-                    String chucVu = nhanVien.getChucVu() != null ? nhanVien.getChucVu() : "NHAN_VIEN";
+                    String chucVu = nhanVien.getChucVu() != null ? nhanVien.getChucVu() : "NHAN_VIEN_BAN_VE";
+                    
+                    // Determine role based on maNV prefix (NVBV = Ban Ve, NVQL/NVTP = Quan Ly)
+                    String maNV = nhanVien.getMaNV();
+                    if (maNV != null && (maNV.startsWith("NVQL") || maNV.startsWith("NVTP"))) {
+                        chucVu = "QUAN_LY";
+                    } else if (maNV != null && maNV.startsWith("NVBV")) {
+                        chucVu = "NHAN_VIEN_BAN_VE";
+                    }
+                    
                     System.out.println("[DEBUG-LoginFrame] Login success - MaNV: " + nhanVien.getMaNV() 
                         + ", HoTen: " + nhanVien.getHoTen() + ", ChucVu: " + chucVu);
                     return LoginResult.dangNhapThanhCong(nhanVien, chucVu);
@@ -319,7 +330,18 @@ public class LoginFrame extends JFrame implements ActionListener {
                         return;
                     }
 
+                    // Hiển thị dialog kết nối server
                     dispose();
+                    ServerConnectionDialog connectionDialog = new ServerConnectionDialog(null);
+                    connectionDialog.setVisible(true);
+                    
+                    if (!connectionDialog.isConnected()) {
+                        // User hủy
+                        new LoginFrame().setVisible(true);
+                        return;
+                    }
+                    
+                    // Mở MainFrame sau khi đã kết nối
                     MainFrame mainFrame = new MainFrame(ketQua.getNhanVien(), ketQua.getChucVu());
                     mainFrame.setVisible(true);
                 } catch (InterruptedException ex) {

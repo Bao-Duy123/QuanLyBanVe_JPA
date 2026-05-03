@@ -78,10 +78,15 @@ public class BanVeServiceTest {
         System.out.println("TEST 1: TÌM KIẾM CHUYẾN TÀU");
         System.out.println("═══════════════════════════════════════════════════════════");
         
+//        // Ví dụ: Tìm chuyến từ ga DNA đến ga NTR ngày 2025-12-20
+//        String maGaDi = "DNA";
+//        String maGaDen = "NTR";
+//        LocalDate ngayDi = LocalDate.of(2025, 12, 20);
+
         // Ví dụ: Tìm chuyến từ ga DNA đến ga NTR ngày 2025-12-20
         String maGaDi = "DNA";
-        String maGaDen = "NTR";
-        LocalDate ngayDi = LocalDate.of(2025, 12, 20);
+        String maGaDen = "HAN";
+        LocalDate ngayDi = LocalDate.of(2026, 05, 03);
         
         System.out.println("Tìm kiếm: " + maGaDi + " -> " + maGaDen + " ngày " + ngayDi);
         

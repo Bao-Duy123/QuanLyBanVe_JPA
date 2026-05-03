@@ -25,26 +25,76 @@ public class ThongKeService {
     }
 
     public static class ThongKe {
-        private double doanhThu;
-        private int soVe;
-        private Map<String, Double> topGa;
+        // Public fields for simpler access
+        public double doanhThu;
+        public int soVe;
+        public int soHoaDon;
+        public int soVeDaBan;
+        public int soVeTra;
+        public double tyLeLapDay;
+        public double tangTruong;
+        public Map<String, Double> topGa;
 
         public ThongKe() {
             this.topGa = new HashMap<>();
+            this.soHoaDon = 0;
+            this.soVeDaBan = 0;
+            this.soVeTra = 0;
+            this.tyLeLapDay = 0.0;
+            this.tangTruong = 0.0;
         }
 
         public ThongKe(double doanhThu, int soVe, Map<String, Double> topGa) {
             this.doanhThu = doanhThu;
             this.soVe = soVe;
             this.topGa = topGa != null ? topGa : new HashMap<>();
+            this.soHoaDon = soVe;
+            this.soVeDaBan = soVe;
+            this.soVeTra = 0;
+            this.tyLeLapDay = 0.0;
+            this.tangTruong = 0.0;
         }
 
+        // Backward compatibility getters
         public double getDoanhThu() { return doanhThu; }
-        public void setDoanhThu(double doanhThu) { this.doanhThu = doanhThu; }
         public int getSoVe() { return soVe; }
-        public void setSoVe(int soVe) { this.soVe = soVe; }
+        public int getSoHoaDon() { return soHoaDon; }
+        public int getSoVeDaBan() { return soVeDaBan; }
+        public int getSoVeTra() { return soVeTra; }
+        public double getTyLeLapDay() { return tyLeLapDay; }
+        public double getTangTruong() { return tangTruong; }
         public Map<String, Double> getTopGa() { return topGa; }
-        public void setTopGa(Map<String, Double> topGa) { this.topGa = topGa; }
+    }
+
+    /**
+     * Get today's statistics - simplified version
+     */
+    public ThongKe getThongKeNgay() {
+        ThongKe tk = new ThongKe();
+        LocalDateTime today = LocalDateTime.now();
+        
+        try {
+            List<HoaDon> allHoaDons = hoaDonRepository.findAll();
+            
+            // Filter for today
+            List<HoaDon> todayHoaDons = allHoaDons.stream()
+                    .filter(h -> h.getNgayLap() != null)
+                    .filter(h -> {
+                        LocalDateTime ngayLap = h.getNgayLap();
+                        return !ngayLap.isBefore(today.toLocalDate().atStartOfDay()) 
+                            && ngayLap.isBefore(today.toLocalDate().atStartOfDay().plusDays(1));
+                    })
+                    .toList();
+            
+            tk.soHoaDon = todayHoaDons.size();
+            tk.soVeDaBan = todayHoaDons.size();
+            tk.doanhThu = todayHoaDons.stream().mapToDouble(HoaDon::getTongTien).sum();
+            
+        } catch (Exception e) {
+            System.err.println("Error getting today's stats: " + e.getMessage());
+        }
+        
+        return tk;
     }
 
     public ThongKe thongKeThang(int thang, int nam) {

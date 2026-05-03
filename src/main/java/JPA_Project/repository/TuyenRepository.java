@@ -1,8 +1,7 @@
 package JPA_Project.repository;
 
 import JPA_Project.entity.Tuyen;
-import JPA_Project.db.JPAUtil;
-import jakarta.persistence.EntityManager;
+import JPA_Project.db.Tx;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,25 +16,33 @@ public class TuyenRepository extends BaseRepository<Tuyen, String> {
     }
 
     public List<Tuyen> findAllOrderByTenTuyen() {
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            String jpql = "SELECT t FROM Tuyen t ORDER BY t.tenTuyen";
-            return em.createQuery(jpql, Tuyen.class).getResultList();
-        } finally {
-            em.close();
-        }
+        return Tx.noTx(em -> em.createQuery(
+                        "SELECT t FROM Tuyen t ORDER BY t.tenTuyen",
+                        Tuyen.class)
+                .getResultList());
     }
 
     public List<Tuyen> findByGaDauOrGaCuoi(String maGa) {
-        EntityManager em = JPAUtil.getEntityManager();
-        try {
-            String jpql = "SELECT t FROM Tuyen t WHERE t.gaDau = :maGa OR t.gaCuoi = :maGa";
-            return em.createQuery(jpql, Tuyen.class)
-                    .setParameter("maGa", maGa)
-                    .getResultList();
-        } finally {
-            em.close();
-        }
+        return Tx.noTx(em -> em.createQuery(
+                        "SELECT t FROM Tuyen t WHERE t.gaDau = :maGa OR t.gaCuoi = :maGa",
+                        Tuyen.class)
+                .setParameter("maGa", maGa)
+                .getResultList());
+    }
+
+    public void save(Tuyen entity) {
+        Tx.inTxVoid(em -> {
+            Tuyen existing = em.find(Tuyen.class, entity.getMaTuyen());
+            if (existing != null) {
+                existing.setTenTuyen(entity.getTenTuyen());
+                existing.setGaDau(entity.getGaDau());
+                existing.setGaCuoi(entity.getGaCuoi());
+                existing.setDonGiaKM(entity.getDonGiaKM());
+                em.merge(existing);
+            } else {
+                em.persist(entity);
+            }
+        });
     }
 
     public static void main(String[] args) {

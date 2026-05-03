@@ -24,6 +24,7 @@ public class ManHinhQuanLyGiaVe extends JPanel {
         // 3. Tab Hệ số Loại chỗ (Bạn có thể phát triển thêm tương tự)
         tabbedPane.addTab("Hệ số Loại chỗ (Ghế/Giường)", new ManHinhQuanLyLoaiToa());
 
+        
         add(tabbedPane, BorderLayout.CENTER);
 
         // Tiêu đề phía trên

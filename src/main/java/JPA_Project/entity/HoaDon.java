@@ -40,7 +40,7 @@ public class HoaDon {
     private String loaiHoaDon;
 
     @Column(name = "TongCong")
-    private double tongCong;
+    private Double tongCong;
 
     @Column(name = "MaHoaDon_Goc")
     private String maHoaDon_Goc;
