@@ -1,9 +1,0 @@
-Project Stack: Java 17, Spring Boot 3, Spring Data JPA, SQL Server.
-Naming Convention: PascalCase cho Entity, camelCase cho biến.
-Rules:
-- Sử dụng Lombok (@Data, @NoArgsConstructor, @AllArgsConstructor) để giảm code boilerplate.
-- Sử dụng @Repository cho các lớp Repository.
-- Ưu tiên sử dụng Query Methods thay vì JPQL nếu đơn giản.
-- Luôn kiểm tra lỗi Compile sau mỗi lần thay đổi file.
-
-build bằng .\mvnw.cmd compile

@@ -126,6 +126,10 @@ public class ManHinhTraVeJPA extends JPanel {
         btnTimKiem = new JButton("Tìm kiếm");
         btnTimKiem.setBackground(COLOR_BLUE_LIGHT);
         btnTimKiem.setForeground(Color.WHITE);
+
+        btnTimKiem.setOpaque(true);
+        btnTimKiem.setBorderPainted(false);
+
         btnTimKiem.setFont(FONT_BOLD_14);
         btnTimKiem.setPreferredSize(new Dimension(100, 30));
         searchRow.add(btnTimKiem);
@@ -215,11 +219,19 @@ public class ManHinhTraVeJPA extends JPanel {
 
         btnHuyBo = new JButton("Hủy bỏ");
         btnHuyBo.setBackground(COLOR_RED);
+
+        btnHuyBo.setOpaque(true);
+        btnHuyBo.setBorderPainted(false);
+
         btnHuyBo.setForeground(Color.WHITE);
         btnHuyBo.setFont(FONT_BOLD_14);
 
         btnXacNhan = new JButton("Xác nhận trả vé");
         btnXacNhan.setBackground(PRIMARY_COLOR);
+
+        btnXacNhan.setOpaque(true);
+        btnXacNhan.setBorderPainted(false);
+
         btnXacNhan.setForeground(Color.WHITE);
         btnXacNhan.setFont(FONT_BOLD_14);
 

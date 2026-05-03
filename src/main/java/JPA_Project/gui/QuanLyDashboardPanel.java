@@ -74,6 +74,10 @@ public class QuanLyDashboardPanel extends JPanel {
 
         JButton btnRefresh = new JButton("Làm mới");
         btnRefresh.setFont(FONT_LABEL);
+
+        btnRefresh.setOpaque(true);
+        btnRefresh.setBorderPainted(false);
+
         btnRefresh.setPreferredSize(new Dimension(100, 35));
         btnRefresh.addActionListener(e -> loadData());
         filterPanel.add(cboThoiGian);

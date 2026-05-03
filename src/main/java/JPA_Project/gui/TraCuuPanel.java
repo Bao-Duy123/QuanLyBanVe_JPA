@@ -88,6 +88,10 @@ public class TraCuuPanel extends JPanel {
         btnTimKiem = new JButton("Tìm kiếm");
         btnTimKiem.setBackground(new Color(52, 152, 219));
         btnTimKiem.setForeground(Color.WHITE);
+
+        btnTimKiem.setOpaque(true);
+        btnTimKiem.setBorderPainted(false);
+
         btnTimKiem.addActionListener(e -> timKiemVe());
         searchPanel.add(btnTimKiem);
 
@@ -143,6 +147,9 @@ public class TraCuuPanel extends JPanel {
         btnTimKiemHD = new JButton("Tìm kiếm");
         btnTimKiemHD.setBackground(new Color(52, 152, 219));
         btnTimKiemHD.setForeground(Color.WHITE);
+        btnTimKiemHD.setOpaque(true);
+        btnTimKiemHD.setBorderPainted(false);
+
         btnTimKiemHD.addActionListener(e -> timKiemHoaDon());
         searchPanel.add(btnTimKiemHD);
 

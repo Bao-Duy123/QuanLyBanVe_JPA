@@ -116,6 +116,8 @@ public class ServerConnectionDialog extends JDialog {
         
         btnSkip = new JButton("Tiếp tục (Local)");
         btnSkip.setPreferredSize(new Dimension(140, 35));
+        btnSkip.setOpaque(true);
+        btnSkip.setBorderPainted(false);
         btnSkip.addActionListener(e -> {
             localMode = true;
             connected = true;
@@ -126,6 +128,8 @@ public class ServerConnectionDialog extends JDialog {
         btnConnect = new JButton("Kết nối Server");
         btnConnect.setPreferredSize(new Dimension(140, 35));
         btnConnect.setBackground(new Color(46, 204, 113));
+        btnConnect.setOpaque(true);
+        btnConnect.setBorderPainted(false);
         btnConnect.setForeground(Color.WHITE);
         btnConnect.addActionListener(e -> connectToServer());
         footerPanel.add(btnConnect);

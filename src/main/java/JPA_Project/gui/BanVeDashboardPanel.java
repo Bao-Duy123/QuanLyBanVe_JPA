@@ -215,6 +215,10 @@ public class BanVeDashboardPanel extends JPanel {
         btn.setForeground(Color.WHITE);
         btn.setBackground(bg);
         btn.setFocusPainted(false);
+
+        btn.setOpaque(true);
+        btn.setBorderPainted(false);
+
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btn.addActionListener(e -> {
             Window win = SwingUtilities.getWindowAncestor(thisPanel);
