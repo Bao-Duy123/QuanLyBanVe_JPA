@@ -3,9 +3,16 @@ package JPA_Project.network;
 import JPA_Project.entity.Ve;
 import JPA_Project.entity.HoaDon;
 import JPA_Project.entity.ChoDat;
+import JPA_Project.entity.NhanVien;
+import JPA_Project.entity.TaiKhoan;
 import JPA_Project.repository.VeRepository;
 import JPA_Project.repository.HoaDonRepository;
 import JPA_Project.repository.ChoDatRepository;
+import JPA_Project.repository.NhanVienRepository;
+import JPA_Project.repository.TaiKhoanRepository;
+import JPA_Project.repository.GaRepository;
+import JPA_Project.repository.ChuyenTauRepository;
+import JPA_Project.repository.ToaRepository;
 import JPA_Project.service.BanVeService;
 
 import java.io.*;
@@ -41,6 +48,8 @@ public class TrainServer {
     private final VeRepository veRepository;
     private final HoaDonRepository hoaDonRepository;
     private final ChoDatRepository choDatRepository;
+    private final NhanVienRepository nhanVienRepository;
+    private final TaiKhoanRepository taiKhoanRepository;
     
     private boolean isRunning = false;
     
@@ -48,6 +57,8 @@ public class TrainServer {
         this.veRepository = new VeRepository();
         this.hoaDonRepository = new HoaDonRepository();
         this.choDatRepository = new ChoDatRepository();
+        this.nhanVienRepository = new NhanVienRepository();
+        this.taiKhoanRepository = new TaiKhoanRepository();
     }
     
     public void start() {
@@ -318,6 +329,10 @@ public class TrainServer {
                     
                 case "GET_TONG_HOP":
                     handleGetTongHop();
+                    break;
+                    
+                case "LOGIN":
+                    handleLogin();
                     break;
                     
                 default:
@@ -596,6 +611,56 @@ public class TrainServer {
                 output.writeBoolean(false);
                 output.writeUTF("Loi: " + e.getMessage());
                 output.flush();
+            }
+        }
+        
+        private void handleLogin() throws IOException {
+            try {
+                String taiKhoan = input.readUTF();
+                String matKhau = input.readUTF();
+                
+                System.out.println("[" + clientId + "] Yeu cau dang nhap: " + taiKhoan);
+                
+                // Admin login
+                if ("admin".equals(taiKhoan) && "admin".equals(matKhau)) {
+                    output.writeBoolean(true);
+                    output.writeUTF("NV001"); // maNV
+                    output.writeUTF("Quan tri vien"); // hoTen
+                    output.writeUTF("ADMIN"); // chucVu
+                    output.flush();
+                    System.out.println("[" + clientId + "] Admin login success");
+                    return;
+                }
+                
+                // Tim nhan vien trong database
+                var optTK = taiKhoanRepository.findByTenDangNhap(taiKhoan);
+                if (optTK.isPresent() && optTK.get().getMatKhau().equals(matKhau)) {
+                    TaiKhoan tk = optTK.get();
+                    var optNV = nhanVienRepository.findByMaNV(tk.getMaNV());
+                    if (optNV.isPresent()) {
+                        NhanVien nv = optNV.get();
+                        output.writeBoolean(true);
+                        output.writeUTF(nv.getMaNV() != null ? nv.getMaNV() : "");
+                        output.writeUTF(nv.getHoTen() != null ? nv.getHoTen() : "");
+                        output.writeUTF(nv.getChucVu() != null ? nv.getChucVu() : "NHAN_VIEN_BAN_VE");
+                        output.flush();
+                        System.out.println("[" + clientId + "] Login success: " + nv.getMaNV());
+                    } else {
+                        output.writeBoolean(false);
+                        output.writeUTF("Khong tim thay nhan vien");
+                        output.flush();
+                    }
+                } else {
+                    output.writeBoolean(false);
+                    output.writeUTF("Tai khoan hoac mat khau khong dung");
+                    output.flush();
+                    System.out.println("[" + clientId + "] Login failed");
+                }
+            } catch (Exception e) {
+                output.writeBoolean(false);
+                output.writeUTF("Loi: " + e.getMessage());
+                output.flush();
+                e.printStackTrace();
             }
         }
         

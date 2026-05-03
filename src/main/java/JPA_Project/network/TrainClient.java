@@ -226,6 +226,64 @@ public class TrainClient {
     }
     
     // =============================================
+    // LOGIN
+    // =============================================
+
+    /**
+     * Đăng nhập qua server
+     * @return LoginResponse chứa thông tin đăng nhập
+     */
+    public LoginResponse login(String taiKhoan, String matKhau) {
+        if (!isConnected()) {
+            return new LoginResponse(false, null, null, "Chua ket noi server");
+        }
+
+        try {
+            output.writeUTF("LOGIN");
+            output.writeUTF(taiKhoan);
+            output.writeUTF(matKhau);
+            output.flush();
+
+            boolean success = input.readBoolean();
+            if (success) {
+                String maNV = input.readUTF();
+                String hoTen = input.readUTF();
+                String chucVu = input.readUTF();
+                return new LoginResponse(true, maNV, hoTen, chucVu);
+            } else {
+                String message = input.readUTF();
+                return new LoginResponse(false, null, null, message);
+            }
+        } catch (IOException e) {
+            System.err.println("[" + clientName + "] Loi login: " + e.getMessage());
+            return new LoginResponse(false, null, null, e.getMessage());
+        }
+    }
+
+    /**
+     * Response cho login
+     */
+    public static class LoginResponse {
+        public final boolean success;
+        public final String maNV;
+        public final String hoTen;
+        public final String chucVu;
+        public final String message;
+
+        public LoginResponse(boolean success, String maNV, String hoTen, String chucVu, String message) {
+            this.success = success;
+            this.maNV = maNV;
+            this.hoTen = hoTen;
+            this.chucVu = chucVu;
+            this.message = message;
+        }
+
+        public LoginResponse(boolean success, String maNV, String hoTen, String message) {
+            this(success, maNV, hoTen, null, message);
+        }
+    }
+    
+    // =============================================
     // REPOSITORY CALLS - Gọi server để lấy dữ liệu
     // =============================================
 

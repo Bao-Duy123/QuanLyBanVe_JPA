@@ -2,6 +2,8 @@ package JPA_Project.gui;
 
 import JPA_Project.service.LoginService;
 import JPA_Project.entity.NhanVien;
+import JPA_Project.network.NetworkManager;
+import JPA_Project.network.TrainClient;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -250,8 +252,29 @@ public class LoginFrame extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == txtMatKhau || e.getSource() == btnDangNhap || e.getSource() == txtTaiKhoan) {
-            xuLyDangNhapAsync();
+            // Hỏi kết nối Server trước
+            hoiKetNoiServerVaDangNhap();
         }
+    }
+    
+    /**
+     * Hỏi kết nối Server trước, sau đó mới đăng nhập
+     */
+    private void hoiKetNoiServerVaDangNhap() {
+        // Hiển thị dialog kết nối server TRƯỚC
+        ServerConnectionDialog connectionDialog = new ServerConnectionDialog(null);
+        connectionDialog.setVisible(true);
+        
+        if (!connectionDialog.isConnected()) {
+            // User hủy - vẫn cho đăng nhập local
+            System.out.println("[DEBUG-LoginFrame] User huy ket noi server, dang nhap local");
+        } else {
+            System.out.println("[DEBUG-LoginFrame] Da ket noi server: " + 
+                JPA_Project.network.NetworkManager.getInstance().getConnectionInfo());
+        }
+        
+        // Sau đó mới đăng nhập
+        xuLyDangNhapAsync();
     }
 
     private void xuLyDangNhapAsync() {
@@ -280,6 +303,37 @@ public class LoginFrame extends JFrame implements ActionListener {
             @Override
             protected LoginResult doInBackground() {
                 try {
+                    // Kiểm tra xem đã kết nối Server chưa
+                    if (NetworkManager.getInstance().isConnected()) {
+                        // Đăng nhập qua Server
+                        System.out.println("[DEBUG-LoginFrame] Dang nhap qua server...");
+                        TrainClient.LoginResponse resp = NetworkManager.getInstance().getTrainClient().login(tenDangNhap, matKhau);
+                        
+                        if (resp.success) {
+                            NhanVien nv = new NhanVien();
+                            nv.setMaNV(resp.maNV);
+                            nv.setHoTen(resp.hoTen);
+                            nv.setChucVu(resp.chucVu);
+                            
+                            // Xác định role
+                            String chucVu = resp.chucVu;
+                            if (resp.maNV != null && (resp.maNV.startsWith("NVQL") || resp.maNV.startsWith("NVTP"))) {
+                                chucVu = "QUAN_LY";
+                            } else if (resp.maNV != null && resp.maNV.startsWith("NVBV")) {
+                                chucVu = "NHAN_VIEN_BAN_VE";
+                            }
+                            
+                            System.out.println("[DEBUG-LoginFrame] Server login success: " + resp.maNV);
+                            return LoginResult.dangNhapThanhCong(nv, chucVu);
+                        } else {
+                            System.out.println("[DEBUG-LoginFrame] Server login failed: " + resp.message);
+                            return LoginResult.dangNhapThatBai(resp.message);
+                        }
+                    }
+                    
+                    // Chưa kết nối Server - đăng nhập local
+                    System.out.println("[DEBUG-LoginFrame] Chua ket noi server, dang nhap local...");
+                    
                     if ("admin".equals(tenDangNhap) && "admin".equals(matKhau)) {
                         NhanVien nv = new NhanVien();
                         nv.setMaNV("NV001");
@@ -330,18 +384,8 @@ public class LoginFrame extends JFrame implements ActionListener {
                         return;
                     }
 
-                    // Hiển thị dialog kết nối server
+                    // Mở MainFrame (Server đã được kết nối ở bước trước)
                     dispose();
-                    ServerConnectionDialog connectionDialog = new ServerConnectionDialog(null);
-                    connectionDialog.setVisible(true);
-                    
-                    if (!connectionDialog.isConnected()) {
-                        // User hủy
-                        new LoginFrame().setVisible(true);
-                        return;
-                    }
-                    
-                    // Mở MainFrame sau khi đã kết nối
                     MainFrame mainFrame = new MainFrame(ketQua.getNhanVien(), ketQua.getChucVu());
                     mainFrame.setVisible(true);
                 } catch (InterruptedException ex) {
