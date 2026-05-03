@@ -3,7 +3,8 @@ package JPA_Project.gui;
 import JPA_Project.dto.*;
 import JPA_Project.entity.*;
 import JPA_Project.service.BanVeService;
-import JPA_Project.repository.*;
+import JPA_Project.network.RemoteRepository;
+import JPA_Project.repository.KhachHangRepository;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -27,7 +28,7 @@ public class ManHinhBanVeJPA extends JPanel implements ActionListener {
     // SERVICES & REPOSITORIES
     // ================================================================================
     private final BanVeService banVeService;
-    private final GaRepository gaRepository;
+    private final RemoteRepository remoteRepository;
     private final KhachHangRepository khachHangRepository;
     private final NhanVien nhanVienHienTai;
 
@@ -85,7 +86,7 @@ public class ManHinhBanVeJPA extends JPanel implements ActionListener {
     public ManHinhBanVeJPA(NhanVien nhanVien) {
         this.nhanVienHienTai = nhanVien;
         this.banVeService = new BanVeService();
-        this.gaRepository = new GaRepository();
+        this.remoteRepository = RemoteRepository.getInstance();
         this.khachHangRepository = new KhachHangRepository();
 
         // Initialize custom components
@@ -372,7 +373,7 @@ public class ManHinhBanVeJPA extends JPanel implements ActionListener {
 
     private void taiDanhSachGa() {
         try {
-            List<Ga> allGa = gaRepository.findAll();
+            List<Ga> allGa = remoteRepository.findAllGa();
 
             cbGaDi.removeAllItems();
             cbGaDen.removeAllItems();
