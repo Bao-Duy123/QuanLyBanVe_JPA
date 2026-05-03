@@ -330,7 +330,18 @@ public class LoginFrame extends JFrame implements ActionListener {
                         return;
                     }
 
+                    // Hiển thị dialog kết nối server
                     dispose();
+                    ServerConnectionDialog connectionDialog = new ServerConnectionDialog(null);
+                    connectionDialog.setVisible(true);
+                    
+                    if (!connectionDialog.isConnected()) {
+                        // User hủy
+                        new LoginFrame().setVisible(true);
+                        return;
+                    }
+                    
+                    // Mở MainFrame sau khi đã kết nối
                     MainFrame mainFrame = new MainFrame(ketQua.getNhanVien(), ketQua.getChucVu());
                     mainFrame.setVisible(true);
                 } catch (InterruptedException ex) {

@@ -1,6 +1,7 @@
 package JPA_Project.gui;
 
 import JPA_Project.entity.NhanVien;
+import JPA_Project.network.NetworkManager;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -215,14 +216,34 @@ public class MainFrame extends JFrame implements ActionListener {
         nhanChucVu.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         nhanChucVu.setForeground(Color.decode("#E0E0E0"));
         nhanChucVu.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        // Server connection status
+        JLabel nhanServerStatus = new JLabel();
+        nhanServerStatus.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        nhanServerStatus.setAlignmentX(Component.LEFT_ALIGNMENT);
+        
+        // Update status based on NetworkManager
+        updateServerStatusLabel(nhanServerStatus);
 
         panel.add(nhanTenNV);
         panel.add(nhanMaNV);
         panel.add(nhanChucVu);
+        panel.add(nhanServerStatus);
         panel.add(taoDuongKe());
 
         panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, panel.getPreferredSize().height));
         return panel;
+    }
+    
+    private void updateServerStatusLabel(JLabel label) {
+        NetworkManager nm = NetworkManager.getInstance();
+        if (nm.isConnected()) {
+            label.setText("Server: " + nm.getConnectionInfo());
+            label.setForeground(Color.decode("#90EE90")); // Light green
+        } else {
+            label.setText("Server: Local Mode");
+            label.setForeground(Color.decode("#E0E0E0"));
+        }
     }
 
     private String getVietHoaChucVu(String chucVu) {
