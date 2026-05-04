@@ -171,6 +171,10 @@ public class ManHinhQuanLyNhanVienJPA extends JPanel {
         btnSearch.setFont(FONT_BOLD_14);
         btnSearch.setBackground(PRIMARY_COLOR);
         btnSearch.setForeground(Color.WHITE);
+
+        btnSearch.setOpaque(true);
+        btnSearch.setBorderPainted(false);
+
         btnSearch.addActionListener(e -> searchEmployees());
         panel.add(btnSearch, gbc);
         panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 150));
@@ -193,6 +197,10 @@ public class ManHinhQuanLyNhanVienJPA extends JPanel {
         JButton btnAdd = new JButton("+ Thêm nhân viên");
         btnAdd.setFont(FONT_BOLD_14);
         btnAdd.setBackground(COLOR_GREEN);
+
+        btnAdd.setOpaque(true);
+        btnAdd.setBorderPainted(false);
+
         btnAdd.setForeground(Color.WHITE);
         btnAdd.addActionListener(e -> {
             clearEmployeeForm();
@@ -269,6 +277,10 @@ public class ManHinhQuanLyNhanVienJPA extends JPanel {
         scrollNotes.setPreferredSize(new Dimension(0, 150));
         JButton btnSaveNotes = new JButton("Lưu");
         btnSaveNotes.setFont(FONT_BOLD_14);
+
+        btnSaveNotes.setOpaque(true);
+        btnSaveNotes.setBorderPainted(false);
+
         btnSaveNotes.setBackground(PRIMARY_COLOR);
         btnSaveNotes.setForeground(Color.WHITE);
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
@@ -349,6 +361,16 @@ public class ManHinhQuanLyNhanVienJPA extends JPanel {
         JButton btnXoaTrang = new JButton("Xóa trắng"); btnXoaTrang.setFont(FONT_BOLD_14);
         JButton btnLuu = new JButton("Lưu"); btnLuu.setFont(FONT_BOLD_14); btnLuu.setBackground(COLOR_GREEN); btnLuu.setForeground(Color.WHITE);
         buttonPanel.add(btnHuy); buttonPanel.add(btnXoaTrang); buttonPanel.add(btnLuu);
+
+        btnHuy.setOpaque(true);
+        btnHuy.setBorderPainted(false);
+
+        btnXoaTrang.setOpaque(true);
+        btnXoaTrang.setBorderPainted(false);
+
+        btnLuu.setOpaque(true);
+        btnLuu.setBorderPainted(false);
+
 
         // Thêm sự kiện cho nút
         btnLuu.addActionListener(e -> saveEmployee());
@@ -451,10 +473,10 @@ public class ManHinhQuanLyNhanVienJPA extends JPanel {
                     int stt = 1;
                     for (TaiKhoan tk : danhSachTK) {
                         NhanVien nv = tk.getNhanVien();
-                        String maNV = (nv != null) ? nv.getMaNV() : tk.getMaNV();
-                        String hoTen = (nv != null) ? nv.getHoTen() : "Không tìm thấy NV";
-                        String gioiTinh = (nv != null) ? nv.getGioiTinh() : "";
-                        String chucVu = (nv != null) ? nv.getChucVu() : "";
+                        String maNV = (nv != null && nv.getMaNV() != null) ? nv.getMaNV() : (tk.getMaNV() != null ? tk.getMaNV() : "");
+                        String hoTen = (nv != null && nv.getHoTen() != null) ? nv.getHoTen() : "Không tìm thấy NV";
+                        String gioiTinh = (nv != null && nv.getGioiTinh() != null) ? nv.getGioiTinh() : "";
+                        String chucVu = (nv != null && nv.getChucVu() != null) ? nv.getChucVu() : "";
 
                         Vector<Object> row = new Vector<>();
                         row.add(stt++);
@@ -462,7 +484,7 @@ public class ManHinhQuanLyNhanVienJPA extends JPanel {
                         row.add(hoTen);
                         row.add(gioiTinh);
                         row.add(chucVu);
-                        row.add(tk.getTrangThai());
+                        row.add(tk.getTrangThai() != null ? tk.getTrangThai() : "");
                         row.add("");
                         model.addRow(row);
                     }
@@ -564,25 +586,29 @@ public class ManHinhQuanLyNhanVienJPA extends JPanel {
                     if (tk != null) {
                         maNV_dangSua = maNV;
                         NhanVien nv = tk.getNhanVien();
+                        
+                        if (nv != null) {
+                            txtHoTen.setText(nv.getHoTen() != null ? nv.getHoTen() : "");
+                            txtEmail.setText(nv.getEmail() != null ? nv.getEmail() : "");
+                            txtSoCCCD.setText(nv.getSoCCCD() != null ? nv.getSoCCCD() : "");
+                            txtDiaChi.setText(nv.getDiaChi() != null ? nv.getDiaChi() : "");
+                            cbChucVu.setSelectedItem(nv.getChucVu() != null ? nv.getChucVu() : "Nhân viên bán vé");
+                            txtSoDienThoai.setText(nv.getSdt() != null ? nv.getSdt() : "");
 
-                        txtHoTen.setText(nv.getHoTen());
-                        txtEmail.setText(nv.getEmail());
-                        txtSoCCCD.setText(nv.getSoCCCD());
-                        txtDiaChi.setText(nv.getDiaChi());
-                        cbChucVu.setSelectedItem(nv.getChucVu());
-                        txtSoDienThoai.setText(nv.getSdt());
+                            dateNgayVaoLam.setDate(convertLocalDateToUtilDate(nv.getNgayVaoLam()));
 
-                        dateNgayVaoLam.setDate(convertLocalDateToUtilDate(nv.getNgayVaoLam()));
+                            if ("Nam".equalsIgnoreCase(nv.getGioiTinh())) radNam.setSelected(true);
+                            else if ("Nữ".equalsIgnoreCase(nv.getGioiTinh())) radNu.setSelected(true);
+                            else bgGender.clearSelection();
+                        } else {
+                            clearEmployeeForm();
+                        }
 
-                        if ("Nam".equalsIgnoreCase(nv.getGioiTinh())) radNam.setSelected(true);
-                        else if ("Nữ".equalsIgnoreCase(nv.getGioiTinh())) radNu.setSelected(true);
-                        else bgGender.clearSelection();
-
-                        txtTenDangNhap.setText(tk.getTenDangNhap());
+                        txtTenDangNhap.setText(tk.getTenDangNhap() != null ? tk.getTenDangNhap() : "");
                         txtTenDangNhap.setEditable(false);
 
-                        txtMatKhau.setText(tk.getMatKhau());
-                        cbTrangThai.setSelectedItem(tk.getTrangThai());
+                        txtMatKhau.setText(tk.getMatKhau() != null ? tk.getMatKhau() : "");
+                        cbTrangThai.setSelectedItem(tk.getTrangThai() != null ? tk.getTrangThai() : "Đang hoạt động");
 
                         dateNgayTao.setDate(convertLocalDateToUtilDate(tk.getNgayTao()));
 
@@ -715,6 +741,10 @@ public class ManHinhQuanLyNhanVienJPA extends JPanel {
                         loadTableData();
                         updateSummaryBoxes();
                         clearEmployeeForm();
+                    } else {
+                        JOptionPane.showMessageDialog(ManHinhQuanLyNhanVienJPA.this, 
+                                "Không thể lưu nhân viên. Vui lòng kiểm tra lại thông tin.", 
+                                "Lỗi", JOptionPane.ERROR_MESSAGE);
                     }
                 } catch (Exception e) {
                     handleException("Lỗi khi lưu nhân viên", e);
@@ -783,13 +813,14 @@ public class ManHinhQuanLyNhanVienJPA extends JPanel {
                     } else {
                         for(TaiKhoan tk : results) {
                             NhanVien nv = tk.getNhanVien();
+                            if (nv == null) continue;
                             Vector<Object> row = new Vector<>();
                             row.add(stt++);
-                            row.add(nv.getMaNV());
-                            row.add(nv.getHoTen());
-                            row.add(nv.getGioiTinh());
-                            row.add(nv.getChucVu());
-                            row.add(tk.getTrangThai());
+                            row.add(nv.getMaNV() != null ? nv.getMaNV() : "");
+                            row.add(nv.getHoTen() != null ? nv.getHoTen() : "");
+                            row.add(nv.getGioiTinh() != null ? nv.getGioiTinh() : "");
+                            row.add(nv.getChucVu() != null ? nv.getChucVu() : "");
+                            row.add(tk.getTrangThai() != null ? tk.getTrangThai() : "");
                             row.add("");
                             model.addRow(row);
                         }

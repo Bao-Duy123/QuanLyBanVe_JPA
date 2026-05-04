@@ -5,46 +5,6 @@
              version="3.0">
 
 
-    <persistence-unit name="sql_rut_gon">
-        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-        <class>JPA_Project.entity.TaiKhoan</class>
-        <class>JPA_Project.entity.NhanVien</class>
-        <class>JPA_Project.entity.KhachHang</class>
-        <class>JPA_Project.entity.Ve</class>
-        <class>JPA_Project.entity.HoaDon</class>
-        <class>JPA_Project.entity.ChiTietHoaDon</class>
-        <class>JPA_Project.entity.ChiTietHoaDonId</class>
-        <class>JPA_Project.entity.ChoDat</class>
-        <class>JPA_Project.entity.Ga</class>
-        <class>JPA_Project.entity.Tuyen</class>
-        <class>JPA_Project.entity.Tau</class>
-        <class>JPA_Project.entity.LoaiToa</class>
-        <class>JPA_Project.entity.LoaiVe</class>
-        <class>JPA_Project.entity.KhuyenMai</class>
-        <class>JPA_Project.entity.ChuyenTau</class>
-        <class>JPA_Project.entity.Toa</class>
-        <class>JPA_Project.entity.GaTrongTuyen</class>
-        <class>JPA_Project.entity.GaTrongTuyenId</class>
-        <class>JPA_Project.entity.TrangThaiChuyenTau</class>
-        <exclude-unlisted-classes>true</exclude-unlisted-classes>
-        <properties>
-            <property name="jakarta.persistence.jdbc.url"
-                      value="jdbc:sqlserver://localhost:1433;databaseName=QuanLyVeTau_JPA_Database_SQL;trustServerCertificate=true; encrypt=true;characterEncoding=UTF-8;sendStringParametersAsUnicode=true;loginTimeout=30;" />
-            <property name="jakarta.persistence.jdbc.user" value="sa" />
-            <property name="jakarta.persistence.jdbc.password" value="sapassword" />
-            <property name="jakarta.persistence.jdbc.driver" value="com.microsoft.sqlserver.jdbc.SQLServerDriver" />
-            <property name="jakarta.persistence.jdbc.dialect" value="org.hibernate.dialect.SQLServerDialect" />
-            <property name="hibernate.show_sql" value="false" />
-            <property name="hibernate.format_sql" value="true" />
-            <property name="hibernate.hbm2ddl.auto" value="update" />
-            <property name="hibernate.archive.autodetection" value="none" />
-            <property name="hibernate.connection.charSet" value="UTF-8" />
-            <property name="hibernate.jdbc.characterEncoding" value="UTF-8" />
-            <property name="hibernate.jdbc.useUnicode" value="true" />
-            <property name="hibernate.query.failOnPersistentTypeVersionMismatch" value="false" />
-        </properties>
-    </persistence-unit>
-
     <persistence-unit name="mssql-pu">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <class>JPA_Project.entity.TaiKhoan</class>

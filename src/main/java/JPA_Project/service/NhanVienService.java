@@ -82,26 +82,26 @@ public class NhanVienService {
      */
     public List<TaiKhoan> searchNhanVien(String searchBy, String searchTerm, String status) {
         return Tx.noTx(em -> {
-            StringBuilder jpql = new StringBuilder("SELECT tk FROM TaiKhoan tk JOIN FETCH tk.nhanVien nv WHERE tk.trangThai = :status");
+            StringBuilder jpql = new StringBuilder("SELECT tk FROM TaiKhoan tk JOIN FETCH tk.nhanVien WHERE tk.trangThai = :status");
             
             if (searchTerm != null && !searchTerm.trim().isEmpty()) {
                 switch (searchBy) {
                     case "Mã nhân viên":
-                        jpql.append(" AND nv.maNV LIKE :searchTerm");
+                        jpql.append(" AND tk.nhanVien.maNV LIKE :searchTerm");
                         break;
                     case "Số điện thoại":
-                        jpql.append(" AND nv.sdt LIKE :searchTerm");
+                        jpql.append(" AND tk.nhanVien.sdt LIKE :searchTerm");
                         break;
                     case "Số CCCD":
-                        jpql.append(" AND nv.soCCCD LIKE :searchTerm");
+                        jpql.append(" AND tk.nhanVien.soCCCD LIKE :searchTerm");
                         break;
                     case "Họ tên nhân viên":
-                        jpql.append(" AND nv.hoTen LIKE :searchTerm");
+                        jpql.append(" AND tk.nhanVien.hoTen LIKE :searchTerm");
                         break;
                 }
             }
             
-            jpql.append(" ORDER BY nv.maNV");
+            jpql.append(" ORDER BY tk.nhanVien.maNV");
             
             var query = em.createQuery(jpql.toString(), TaiKhoan.class);
             query.setParameter("status", status);
@@ -283,15 +283,15 @@ public class NhanVienService {
             
             // Số nhân viên bán vé
             Long nhanVien = em.createQuery(
-                    "SELECT COUNT(nv) FROM NhanVien nv JOIN nv.taiKhoan tk " +
-                    "WHERE nv.chucVu = 'Nhân viên bán vé' AND tk.trangThai = 'Đang hoạt động'", Long.class)
+                    "SELECT COUNT(nv) FROM NhanVien nv WHERE nv.chucVu = 'Nhân viên bán vé' " +
+                    "AND EXISTS (SELECT tk FROM TaiKhoan tk WHERE tk.maNV = nv.maNV AND tk.trangThai = 'Đang hoạt động')", Long.class)
                     .getSingleResult();
             stats.put("nhanVien", nhanVien.intValue());
             
             // Số quản lý (Quản lý + Trưởng phòng)
             Long quanLy = em.createQuery(
-                    "SELECT COUNT(nv) FROM NhanVien nv JOIN nv.taiKhoan tk " +
-                    "WHERE nv.chucVu IN ('Quản lý', 'Trưởng phòng') AND tk.trangThai = 'Đang hoạt động'", Long.class)
+                    "SELECT COUNT(nv) FROM NhanVien nv WHERE nv.chucVu IN ('Quản lý', 'Trưởng phòng') " +
+                    "AND EXISTS (SELECT tk FROM TaiKhoan tk WHERE tk.maNV = nv.maNV AND tk.trangThai = 'Đang hoạt động')", Long.class)
                     .getSingleResult();
             stats.put("quanLy", quanLy.intValue());
             

@@ -22,12 +22,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-/**
- * TrainServer - Server xử lý yêu cầu từ nhiều client
- * Hỗ trợ realtime broadcast khi ghế được đặt/hủy
- * 
- * Port: 8888
- */
+
 public class TrainServer {
     
     public static final int PORT = 8888;

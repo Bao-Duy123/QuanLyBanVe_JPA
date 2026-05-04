@@ -11,12 +11,8 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 
-/**
- * TrainClient - Client kết nối đến TrainServer
- * Hỗ trợ realtime updates qua callback listener
- */
+
 public class TrainClient {
-    
     public static final int DEFAULT_PORT = 8888;
     public static final int DEFAULT_TIMEOUT = 30000; // 30 giây
     

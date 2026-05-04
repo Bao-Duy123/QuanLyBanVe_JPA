@@ -116,6 +116,10 @@ public class ManHinhQuanLyLoaiVeJPA extends JPanel {
         btnCapNhat.setBackground(PRIMARY_COLOR);
         btnCapNhat.setForeground(Color.WHITE);
         btnCapNhat.setEnabled(false);
+
+        btnCapNhat.setOpaque(true);
+        btnCapNhat.setBorderPainted(false);
+
         
         btnLamMoi = new JButton("Làm mới");
         btnLamMoi.setPreferredSize(new Dimension(100, 30));
